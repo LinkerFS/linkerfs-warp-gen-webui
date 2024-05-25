@@ -20,8 +20,8 @@
  */
 
 import mitt, {Emitter} from "mitt"
-import {FileInfo} from "@/data/file.ts"
-import {FileSelectConfig} from "@/data/fileSelector.ts";
+import {FileInfo} from "@/common/data/file.ts"
+import {FileSelectConfig} from "@/common/data/fileSelector.ts";
 
 type Events = {
     SelectFile: FileSelectConfig

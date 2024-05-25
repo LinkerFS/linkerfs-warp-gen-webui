@@ -20,10 +20,10 @@
   -->
 
 <script setup lang="ts">
-import {FileSelectorState} from "@/data/fileSelector.ts";
+import {FileSelectorState} from "@/common/data/fileSelector.ts";
 import {onMounted, onUnmounted, reactive, ref} from "vue";
-import {FileInfo, FileTree} from "@/data/file.ts";
-import {EventBus} from "@/utils/mitt.ts";
+import {FileInfo, FileTree} from "@/common/data/file.ts";
+import {EventBus} from "@/common/utils/mitt.ts";
 import {ElTree} from "element-plus";
 import {TreeNodeData, TreeOptionProps} from "element-plus/es/components/tree/src/tree.type";
 

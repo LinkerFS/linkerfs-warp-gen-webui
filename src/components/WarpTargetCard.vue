@@ -21,10 +21,10 @@
 
 <script setup lang="ts">
 import {Ref, ref, toRef} from "vue";
-import {WarpTarget} from "@/data/warpFile.ts";
+import {WarpTarget} from "@/common/data/warpFile.ts";
 import {Check, Delete, Edit} from "@element-plus/icons-vue";
-import {EventBus} from "@/utils/mitt.ts";
-import {FileInfo} from "@/data/file.ts";
+import {EventBus} from "@/common/utils/mitt.ts";
+import {FileInfo} from "@/common/data/file.ts";
 
 
 const props = defineProps<{

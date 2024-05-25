@@ -23,9 +23,9 @@
 import {reactive, Ref, toRefs} from "vue";
 import WarpTargetCard from "@/components/WarpTargetCard.vue";
 import {Plus} from "@element-plus/icons-vue";
-import {WarpTarget} from "@/data/warpFile.ts";
-import {EventBus} from "@/utils/mitt.ts";
-import {FileInfo} from "@/data/file.ts";
+import {WarpTarget} from "@/common/data/warpFile.ts";
+import {EventBus} from "@/common/utils/mitt.ts";
+import {FileInfo} from "@/common/data/file.ts";
 
 const warpFile = reactive({path: "", fileName: ""})
 const cardsData = reactive(Array<CardData>())
