@@ -28,9 +28,11 @@
       <router-view/>
     </el-main>
   </el-container>
+  <file-selector></file-selector>
 </template>
 <script setup lang="ts">
 import NavigateBar from "@/components/NavigateBar.vue"
+import FileSelector from "@/components/FileSelector.vue";
 </script>
 <style scoped>
 </style>

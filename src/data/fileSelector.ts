@@ -19,13 +19,20 @@
  * along with linkerfs-warp-gen-webui. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import mitt, {Emitter} from "mitt"
-import {FileInfo} from "@/data/file.ts"
-import {FileSelectConfig} from "@/data/fileSelector.ts";
+import {FilterNodeMethodFunction} from "element-plus/es/components/tree/src/tree.type";
 
-type Events = {
-    SelectFile: FileSelectConfig
-    FileSelected: FileInfo
+export class FileSelectorState {
+    title: string
+    visible: boolean
+    filter?: FilterNodeMethodFunction
+
+    constructor() {
+        this.title = ""
+        this.visible = false
+    }
 }
-const EventBus: Emitter<Events> = mitt<Events>()
-export {EventBus}
+
+export interface FileSelectConfig {
+    title: string
+    filter?: FilterNodeMethodFunction
+}
