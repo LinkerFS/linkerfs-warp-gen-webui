@@ -26,7 +26,6 @@ import {Plus} from "@element-plus/icons-vue";
 import {WarpTarget} from "@/data/warpFile.ts";
 import {EventBus} from "@/utils/mitt.ts";
 import {FileInfo} from "@/data/file.ts";
-import path from "path";
 
 const warpFile = reactive({path: "", fileName: ""})
 const cardsData = reactive(Array<CardData>())
@@ -40,7 +39,7 @@ interface CardData {
 
 function openFile() {
   EventBus.on('FileSelected', (fileInfo: FileInfo) => {
-    warpFile.path = path.join(fileInfo.parentDir, fileInfo.name)
+    warpFile.path = `${fileInfo.parentDir}/${fileInfo.name}`
     EventBus.off('SelectFile')
   })
   EventBus.emit('SelectFile', {title: "Please select a dir"})
