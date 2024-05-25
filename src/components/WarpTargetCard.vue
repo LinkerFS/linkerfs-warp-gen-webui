@@ -23,6 +23,8 @@
 import {Ref, ref, toRef} from "vue";
 import {WarpTarget} from "@/data/warpFile.ts";
 import {Check, Delete, Edit} from "@element-plus/icons-vue";
+import {EventBus} from "@/utils/mitt.ts";
+import {FileInfo} from "@/data/file.ts";
 
 
 const props = defineProps<{
@@ -34,14 +36,22 @@ const props = defineProps<{
 const emit = defineEmits<{
   edit: [seq: number],
   save: [seq: number],
-  remove: [seq: number],
-  selectFile: [seq: number]
+  remove: [seq: number]
 }>()
 const seq = toRef(props.seq)
 const warpTarget = toRef(props.target)
 const fileTotalSize = toRef(props.fileTotalSize)
 const isDisable = toRef(props.isDisable)
 const isEditable = ref(false)
+
+function selectFile() {
+  EventBus.on('FileSelected', (fileInfo: FileInfo) => {
+    warpTarget.value.filePath = `${fileInfo.parentDir}/${fileInfo.name}`
+    fileTotalSize.value = fileInfo.size
+    EventBus.off('FileSelected')
+  })
+  EventBus.emit('SelectFile', {title: "Please select a File"})
+}
 
 function edit() {
   isEditable.value = true
@@ -71,7 +81,7 @@ function save() {
         <el-input v-model="warpTarget.sizeToRead" :disabled="!isEditable" :type="'number'"></el-input>
       </el-form-item>
       <el-form-item v-if="isEditable">
-        <el-button @click="$emit('selectFile',seq)" type="primary"
+        <el-button @click="selectFile" type="primary"
                    style="margin-left: auto;margin-right: auto;width: 50%">
           {{ "Open" }}
         </el-button>
