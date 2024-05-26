@@ -20,23 +20,21 @@
   -->
 
 <script setup lang="ts">
-import {FileSelectorState} from "@/common/data/fileSelector.ts";
+import {FileSelectConfig, FileSelectorState} from "@/common/data/fileSelector.ts";
 import {onMounted, onUnmounted, reactive, ref} from "vue";
 import {FileInfo, FileTree} from "@/common/data/file.ts";
 import {EventBus} from "@/common/utils/mitt.ts";
 import {ElTree} from "element-plus";
-import {TreeNodeData, TreeOptionProps} from "element-plus/es/components/tree/src/tree.type";
+import {listDir, ListDirResp} from "@/common/api/file.ts";
+import type Node from 'element-plus/es/components/tree/src/model/node'
 
 const state = reactive(new FileSelectorState)
-const data = reactive(new Array<FileTree>())
+const data = ref<FileTree[]>()
 const treeRef = ref<InstanceType<typeof ElTree>>()
-const treeProps: TreeOptionProps = {
+const treeProps = {
   label: "name",
   children: "children",
-  isLeaf: (data: TreeNodeData, _): boolean => {
-    data = data as FileTree
-    return !!data.childDir
-  },
+  isLeaf: "isEmpty",
 }
 
 function fileSelected() {
@@ -44,17 +42,53 @@ function fileSelected() {
   if (current) {
     EventBus.emit('FileSelected', {
       name: current.name,
-      parentDir: current.parentDir,
+      fullPath: current.fullPath,
       size: current['size'] ? current.size : 0
     })
     state.visible = false
   } else {
+    console.log(data)
     //todo inform not select
+  }
+}
+function loadData(node: Node, resolve: (data: FileTree[]) => void, reject: () => void) {
+  if (node.level == 0) {
+    resolve([{
+      name: "File System",
+      fullPath: "",
+      isEmpty: false
+    }])
+  } else {
+    let nodeData = node.data as FileTree
+    listDir(nodeData.fullPath).then((response: object) => {
+      const resp = response as ListDirResp
+      let dataArray = new Array<FileTree>()
+      let dirPath = node.level > 2 ? resp.dirPath + '/' : resp.dirPath
+      resp.dirList.map((val) => {
+        dataArray.push({
+          name: val.name,
+          fullPath: dirPath + val.name,
+          isEmpty: val.isEmpty
+        })
+      })
+      resp.fileList.map((val) => {
+        dataArray.push({
+          name: val.name,
+          fullPath: dirPath + val.name,
+          size: val.size,
+          isEmpty: true
+        })
+      })
+      resolve(dataArray)
+    }, () => {
+      reject()
+    })
   }
 }
 
 onMounted(() => {
-  EventBus.on('SelectFile', () => {
+  EventBus.on('SelectFile', (config: FileSelectConfig) => {
+    state.title = config.title
     state.visible = true
   })
 })
@@ -68,9 +102,13 @@ onUnmounted(() => {
     <el-tree
         ref="treeRef"
         style="max-width: 600px"
+        node-key="fullPath"
+        :load="loadData"
         :filter-node-method="!!state.filter?state.filter:undefined"
         :data="data"
         :props="treeProps"
+        highlight-current
+        lazy
     />
     <template #footer>
       <div class="dialog-footer">
