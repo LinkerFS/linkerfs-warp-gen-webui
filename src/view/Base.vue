@@ -25,7 +25,7 @@ import WarpTargetCard from "@/components/WarpTargetCard.vue";
 import {Plus} from "@element-plus/icons-vue";
 import {WarpTarget} from "@/common/data/warpFile.ts";
 import {EventBus} from "@/common/utils/mitt.ts";
-import {FileInfo} from "@/common/data/file.ts";
+import {FileInfo} from "@/common/data/fileTree.ts";
 import {FileTreeFilters} from "@/common/data/fileSelector.ts";
 
 const warpFile = reactive({path: "", fileName: ""})

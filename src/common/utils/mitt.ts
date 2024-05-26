@@ -20,7 +20,7 @@
  */
 
 import mitt, {Emitter} from "mitt"
-import {FileInfo} from "@/common/data/file.ts"
+import {FileInfo} from "@/common/data/fileTree.ts"
 import {FileSelectConfig} from "@/common/data/fileSelector.ts";
 
 type Events = {

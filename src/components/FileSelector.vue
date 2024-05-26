@@ -22,7 +22,7 @@
 <script setup lang="ts">
 import {FileSelectConfig, FileSelectorState, FileTreeFilters} from "@/common/data/fileSelector.ts";
 import {onMounted, onUnmounted, reactive, ref} from "vue";
-import {FileInfo, FileTree} from "@/common/data/file.ts";
+import {FileInfo, FileTree} from "@/common/data/fileTree.ts";
 import {EventBus} from "@/common/utils/mitt.ts";
 import {ElTree} from "element-plus";
 import {listDir, ListDirResp} from "@/common/api/file.ts";

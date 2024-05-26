@@ -24,7 +24,7 @@ import {Ref, ref, toRef} from "vue";
 import {WarpTarget} from "@/common/data/warpFile.ts";
 import {Check, Delete, Edit} from "@element-plus/icons-vue";
 import {EventBus} from "@/common/utils/mitt.ts";
-import {FileInfo} from "@/common/data/file.ts";
+import {FileInfo} from "@/common/data/fileTree.ts";
 
 
 const props = defineProps<{

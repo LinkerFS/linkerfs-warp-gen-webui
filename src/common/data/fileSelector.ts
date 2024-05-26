@@ -21,7 +21,7 @@
 
 import {FilterNodeMethodFunction, TreeNodeData} from "element-plus/es/components/tree/src/tree.type";
 import Node from "element-plus/es/components/tree/src/model/node";
-import {FileTree} from "@/common/data/file.ts";
+import {FileTree} from "@/common/data/fileTree.ts";
 
 export class FileSelectorState {
     title: string
