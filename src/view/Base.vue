@@ -148,5 +148,6 @@ function lockOtherTargets(seq: number, isLock: boolean) {
 
 .warp-row {
   padding: 10px;
+  max-width: 1200px;
 }
 </style>
