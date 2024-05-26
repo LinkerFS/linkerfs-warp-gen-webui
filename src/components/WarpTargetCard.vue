@@ -44,12 +44,14 @@ const fileTotalSize = toRef(props.fileTotalSize)
 const isDisable = toRef(props.isDisable)
 const isEditable = ref(false)
 
+const fileCallback = (fileInfo: FileInfo) => {
+  warpTarget.value.filePath = fileInfo.fullPath
+  fileTotalSize.value = fileInfo.size
+  EventBus.off('FileSelected', fileCallback)
+}
+
 function selectFile() {
-  EventBus.on('FileSelected', (fileInfo: FileInfo) => {
-    warpTarget.value.filePath = `${fileInfo.parentDir}/${fileInfo.name}`
-    fileTotalSize.value = fileInfo.size
-    EventBus.off('FileSelected')
-  })
+  EventBus.on('FileSelected', fileCallback)
   EventBus.emit('SelectFile', {title: "Please select a File"})
 }
 
