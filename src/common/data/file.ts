@@ -21,30 +21,26 @@
 
 export class FileInfo {
     name: string
-    parentDir: string
+    fullPath: string
     size: number
 
-    constructor(name: string, parentDir: string, size: number) {
+    constructor(name: string, fullPath: string, size: number) {
         this.name = name
-        this.parentDir = parentDir
+        this.fullPath = fullPath
         this.size = size
     }
 }
 
 export class FileTree {
     name: string
-    parentDir: string
-    childDir?: FileTree[]
-    childFile?: FileInfo[]
+    fullPath: string
     children?: FileTree[]
+    isEmpty?: boolean = false
+    size?: number = 0
 
-    constructor(name: string, parentPath: string, childDir: FileTree[], childFile: FileInfo[]) {
+    constructor(name: string, fullPath: string) {
         this.name = name;
-        this.parentDir = parentPath
-        this.childDir = childDir
-        this.childFile = childFile
-        this.children = ((): FileTree[] => {
-            return this.childDir.concat(this.childFile)
-        })()
+        this.fullPath = fullPath
+        this.children = []
     }
 }
