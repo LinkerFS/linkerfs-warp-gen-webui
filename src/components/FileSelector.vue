@@ -20,7 +20,7 @@
   -->
 
 <script setup lang="ts">
-import {FileSelectConfig, FileSelectorState} from "@/common/data/fileSelector.ts";
+import {FileSelectConfig, FileSelectorState, FileTreeFilters} from "@/common/data/fileSelector.ts";
 import {onMounted, onUnmounted, reactive, ref} from "vue";
 import {FileInfo, FileTree} from "@/common/data/file.ts";
 import {EventBus} from "@/common/utils/mitt.ts";
@@ -51,6 +51,7 @@ function fileSelected() {
     //todo inform not select
   }
 }
+
 function loadData(node: Node, resolve: (data: FileTree[]) => void, reject: () => void) {
   if (node.level == 0) {
     resolve([{
@@ -80,6 +81,7 @@ function loadData(node: Node, resolve: (data: FileTree[]) => void, reject: () =>
         })
       })
       resolve(dataArray)
+      treeRef.value?.filter(null)
     }, () => {
       reject()
     })
@@ -90,6 +92,10 @@ onMounted(() => {
   EventBus.on('SelectFile', (config: FileSelectConfig) => {
     state.title = config.title
     state.visible = true
+    if (config.filter)
+      state.filter = config.filter
+    else
+      state.filter = FileTreeFilters.noFilter
   })
 })
 
@@ -104,7 +110,7 @@ onUnmounted(() => {
         style="max-width: 600px"
         node-key="fullPath"
         :load="loadData"
-        :filter-node-method="!!state.filter?state.filter:undefined"
+        :filter-node-method="state.filter"
         :data="data"
         :props="treeProps"
         highlight-current

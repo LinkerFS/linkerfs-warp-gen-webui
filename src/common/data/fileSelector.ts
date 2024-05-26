@@ -19,20 +19,49 @@
  * along with linkerfs-warp-gen-webui. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import {FilterNodeMethodFunction} from "element-plus/es/components/tree/src/tree.type";
+import {FilterNodeMethodFunction, TreeNodeData} from "element-plus/es/components/tree/src/tree.type";
+import Node from "element-plus/es/components/tree/src/model/node";
+import {FileTree} from "@/common/data/file.ts";
 
 export class FileSelectorState {
     title: string
     visible: boolean
-    filter?: FilterNodeMethodFunction
+    filter: FilterNodeMethodFunction | undefined
 
     constructor() {
         this.title = ""
         this.visible = false
+        this.filter = noFilter
     }
 }
 
 export interface FileSelectConfig {
     title: string
-    filter?: FilterNodeMethodFunction
+    filter?: FilterNodeMethodFunction | undefined
 }
+
+const noFilter = undefined
+
+const dirFilter = (_: any, data: TreeNodeData, __: Node) => {
+    return !data.hasOwnProperty('size')
+}
+
+const fileNameFilter = (suffixes: Array<String>) => {
+    if (suffixes.length > 0)
+        return (_: any, data: TreeNodeData, __: Node) => {
+            data = data as FileTree
+            let result = false;
+            // reserve directory
+            if (!data.hasOwnProperty('size'))
+                return true
+            suffixes.forEach((val) => {
+                if (data.name.endsWith(val))
+                    result = true
+            })
+            return result
+        }
+    else
+        return noFilter
+}
+
+export const FileTreeFilters = {noFilter, dirFilter, fileNameFilter}
