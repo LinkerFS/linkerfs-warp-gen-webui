@@ -65,14 +65,14 @@ function loadData(node: Node, resolve: (data: FileTree[]) => void, reject: () =>
       const resp = response as ListDirResp
       let dataArray = new Array<FileTree>()
       let dirPath = node.level > 2 ? resp.dirPath + '/' : resp.dirPath
-      resp.dirList.map((val) => {
+      resp.dirList.forEach((val) => {
         dataArray.push({
           name: val.name,
           fullPath: dirPath + val.name,
           isEmpty: val.isEmpty
         })
       })
-      resp.fileList.map((val) => {
+      resp.fileList.forEach((val) => {
         dataArray.push({
           name: val.name,
           fullPath: dirPath + val.name,
