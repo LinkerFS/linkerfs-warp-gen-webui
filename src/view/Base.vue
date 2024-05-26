@@ -37,11 +37,13 @@ interface CardData {
   fileTotalSize: Ref<number>
 }
 
+const fileCallback = (fileInfo: FileInfo) => {
+  warpFile.path = fileInfo.fullPath
+  EventBus.off('FileSelected', fileCallback)
+}
+
 function openFile() {
-  EventBus.on('FileSelected', (fileInfo: FileInfo) => {
-    warpFile.path = `${fileInfo.parentDir}/${fileInfo.name}`
-    EventBus.off('SelectFile')
-  })
+  EventBus.on('FileSelected', fileCallback)
   EventBus.emit('SelectFile', {title: "Please select a dir"})
 }
 
