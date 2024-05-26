@@ -26,6 +26,7 @@ import {Plus} from "@element-plus/icons-vue";
 import {WarpTarget} from "@/common/data/warpFile.ts";
 import {EventBus} from "@/common/utils/mitt.ts";
 import {FileInfo} from "@/common/data/file.ts";
+import {FileTreeFilters} from "@/common/data/fileSelector.ts";
 
 const warpFile = reactive({path: "", fileName: ""})
 const cardsData = reactive(Array<CardData>())
@@ -44,7 +45,10 @@ const fileCallback = (fileInfo: FileInfo) => {
 
 function openFile() {
   EventBus.on('FileSelected', fileCallback)
-  EventBus.emit('SelectFile', {title: "Please select a dir"})
+  EventBus.emit('SelectFile', {
+    title: "Please select a dir",
+    filter: FileTreeFilters.dirFilter
+  })
 }
 
 function generateWarpFile() {
