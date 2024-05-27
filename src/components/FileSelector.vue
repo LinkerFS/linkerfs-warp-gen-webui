@@ -81,7 +81,8 @@ function loadData(node: Node, resolve: (data: FileTree[]) => void, reject: () =>
         })
       })
       resolve(dataArray)
-      treeRef.value?.filter(null)
+      if (!!state.filter)
+        treeRef.value?.filter(null)
     }, () => {
       reject()
     })
