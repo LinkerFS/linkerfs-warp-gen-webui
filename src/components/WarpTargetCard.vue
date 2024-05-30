@@ -25,6 +25,8 @@ import {WarpTarget} from "@/common/data/warpFile.ts";
 import {Check, Delete, Edit} from "@element-plus/icons-vue";
 import {EventBus} from "@/common/utils/mitt.ts";
 import {FileInfo} from "@/common/data/fileTree.ts";
+import {ElInput} from "element-plus";
+import {setInputDisplayTail} from "@/common/utils/dom.ts";
 
 
 const props = defineProps<{
@@ -43,11 +45,13 @@ const warpTarget = toRef(props.target)
 const fileTotalSize = toRef(props.fileTotalSize)
 const isDisable = toRef(props.isDisable)
 const isEditable = ref(false)
+const pathInputRef = ref<InstanceType<typeof ElInput>>()
 
 const fileCallback = (fileInfo: FileInfo) => {
   warpTarget.value.filePath = fileInfo.fullPath
   fileTotalSize.value = fileInfo.size
   EventBus.off('FileSelected', fileCallback)
+  setInputDisplayTail(pathInputRef)
 }
 
 function selectFile() {
@@ -74,7 +78,7 @@ function save() {
     </template>
     <el-form label-position="right" label-width="auto" style="max-width: 400px">
       <el-form-item :label="$t('File Path:')">
-        <el-input v-model="warpTarget.filePath" :disabled="true"></el-input>
+        <el-input v-model="warpTarget.filePath" ref="pathInputRef" disabled></el-input>
       </el-form-item>
       <el-form-item :label="$t('Data Offset')+'(Byte):'">
         <el-input v-model="warpTarget.dataOffset" :disabled="!isEditable" :type="'number'"></el-input>

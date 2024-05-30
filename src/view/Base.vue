@@ -20,16 +20,19 @@
   -->
 
 <script setup lang="ts">
-import {reactive, Ref, toRefs} from "vue";
+import {reactive, ref, Ref, toRefs} from "vue";
 import WarpTargetCard from "@/components/WarpTargetCard.vue";
 import {Plus} from "@element-plus/icons-vue";
 import {WarpTarget} from "@/common/data/warpFile.ts";
 import {EventBus} from "@/common/utils/mitt.ts";
 import {FileInfo} from "@/common/data/fileTree.ts";
 import {FileTreeFilters} from "@/common/data/fileSelector.ts";
+import {setInputDisplayTail} from "@/common/utils/dom.ts";
+import {ElInput} from "element-plus";
 
 const warpFile = reactive({path: "", fileName: ""})
 const cardsData = reactive(Array<CardData>())
+const pathInputRef = ref<InstanceType<typeof ElInput>>()
 
 interface CardData {
   seq: Ref<number>
@@ -41,6 +44,7 @@ interface CardData {
 const fileCallback = (fileInfo: FileInfo) => {
   warpFile.path = fileInfo.fullPath
   EventBus.off('FileSelected', fileCallback)
+  setInputDisplayTail(pathInputRef)
 }
 
 function openFile() {
@@ -97,6 +101,7 @@ function lockOtherTargets(seq: number, isLock: boolean) {
       <el-input
           class="warp-input"
           v-model="warpFile.path"
+          ref="pathInputRef"
           disabled
           :placeholder="$t('Please select the path to save wrap file')">
       </el-input>
