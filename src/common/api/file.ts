@@ -30,7 +30,7 @@ export interface ListDirResp{
     dirPath: string
     fileList:{
         name:string
-        size:number
+        size:string
     }[]
     dirList:{
         name:string

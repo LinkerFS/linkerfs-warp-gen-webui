@@ -35,7 +35,7 @@ interface CardData {
   seq: Ref<number>
   target: Ref<WarpTarget>
   isDisable: Ref<boolean>
-  fileTotalSize: Ref<number>
+  fileTotalSize: Ref<bigint>
 }
 
 const fileCallback = (fileInfo: FileInfo) => {
@@ -60,7 +60,7 @@ function addTarget() {
     seq: cardsData.length + 1,
     target: new WarpTarget,
     isDisable: false,
-    fileTotalSize: 0
+    fileTotalSize: BigInt(0)
   }
   cardsData.push(reactive(cardData))
 }

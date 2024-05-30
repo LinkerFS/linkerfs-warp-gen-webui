@@ -31,7 +31,7 @@ const props = defineProps<{
   target: Ref<WarpTarget>,
   seq: Ref<number>,
   isDisable: Ref<boolean>,
-  fileTotalSize: Ref<number>
+  fileTotalSize: Ref<bigint>
 }>()
 const emit = defineEmits<{
   edit: [seq: number],

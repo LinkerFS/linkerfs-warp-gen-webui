@@ -26,7 +26,7 @@ export class FileTree implements TreeNodeData {
     fullPath: string
     children?: FileTree[]
     isEmpty?: boolean = false
-    size?: number = 0
+    size?: bigint
 
     constructor(name: string, fullPath: string) {
         this.name = name;
@@ -36,9 +36,9 @@ export class FileTree implements TreeNodeData {
 }
 
 export class FileInfo extends FileTree {
-    size: number
+    size: bigint
 
-    constructor(name: string, fullPath: string, size: number) {
+    constructor(name: string, fullPath: string, size: bigint) {
         super(name, fullPath)
         this.size = size
     }

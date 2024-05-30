@@ -43,7 +43,7 @@ function fileSelected() {
     EventBus.emit('FileSelected', {
       name: current.name,
       fullPath: current.fullPath,
-      size: current['size'] ? current.size : 0
+      size: current['size'] ? current.size : BigInt(0)
     })
     state.visible = false
   } else {
@@ -76,7 +76,7 @@ function loadData(node: Node, resolve: (data: FileTree[]) => void, reject: () =>
         dataArray.push({
           name: val.name,
           fullPath: dirPath + val.name,
-          size: val.size,
+          size: BigInt(val.size),
           isEmpty: true
         })
       })
