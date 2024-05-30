@@ -47,11 +47,13 @@ const isDisable = toRef(props.isDisable)
 const isEditable = ref(false)
 const pathInputRef = ref<InstanceType<typeof ElInput>>()
 
-const fileCallback = (fileInfo: FileInfo) => {
-  warpTarget.value.filePath = fileInfo.fullPath
-  fileTotalSize.value = fileInfo.size
+const fileCallback = (fileInfo: FileInfo | null) => {
+  if (fileInfo) {
+    warpTarget.value.filePath = fileInfo.fullPath
+    fileTotalSize.value = fileInfo.size
+    setInputDisplayTail(pathInputRef)
+  }
   EventBus.off('FileSelected', fileCallback)
-  setInputDisplayTail(pathInputRef)
 }
 
 function selectFile() {

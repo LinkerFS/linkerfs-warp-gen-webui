@@ -41,10 +41,13 @@ interface CardData {
   fileTotalSize: Ref<bigint>
 }
 
-const fileCallback = (fileInfo: FileInfo) => {
-  warpFile.path = fileInfo.fullPath
+const fileCallback = (fileInfo: FileInfo | null) => {
+  if(fileInfo)
+  {
+    warpFile.path = fileInfo.fullPath
+    setInputDisplayTail(pathInputRef)
+  }
   EventBus.off('FileSelected', fileCallback)
-  setInputDisplayTail(pathInputRef)
 }
 
 function openFile() {

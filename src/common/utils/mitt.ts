@@ -25,7 +25,7 @@ import {FileSelectConfig} from "@/common/data/fileSelector.ts";
 
 type Events = {
     SelectFile: FileSelectConfig
-    FileSelected: FileInfo
+    FileSelected: FileInfo | null
 }
 const EventBus: Emitter<Events> = mitt<Events>()
 export {EventBus}

@@ -52,6 +52,15 @@ function fileSelected() {
   }
 }
 
+function handleClose(_: () => void) {
+  cancel()
+}
+
+function cancel(){
+  EventBus.emit('FileSelected', null)
+  state.visible = false
+}
+
 function loadData(node: Node, resolve: (data: FileTree[]) => void, reject: () => void) {
   if (node.level == 0) {
     resolve([{
@@ -105,7 +114,7 @@ onUnmounted(() => {
 })
 </script>
 <template>
-  <el-dialog v-model="state.visible" :title="$t(state.title)" width="800">
+  <el-dialog v-model="state.visible" :title="$t(state.title)" :before-close="handleClose" width="800">
     <el-tree
         ref="treeRef"
         style="max-width: 600px"
@@ -119,7 +128,7 @@ onUnmounted(() => {
     />
     <template #footer>
       <div class="dialog-footer">
-        <el-button @click="state.visible = false">{{ $t("Cancel") }}</el-button>
+        <el-button @click="cancel">{{ $t("Cancel") }}</el-button>
         <el-button type="primary" @click="fileSelected">
           {{ $t("Confirm") }}
         </el-button>
