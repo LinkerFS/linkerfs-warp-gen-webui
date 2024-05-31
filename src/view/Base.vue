@@ -42,8 +42,7 @@ interface CardData {
 }
 
 const fileCallback = (fileInfo: FileInfo | null) => {
-  if(fileInfo)
-  {
+  if (fileInfo) {
     warpFile.path = fileInfo.fullPath
     setInputDisplayTail(pathInputRef)
   }
@@ -97,7 +96,7 @@ function lockOtherTargets(seq: number, isLock: boolean) {
 </script>
 <template>
   <el-row class="warp-row" justify="start" align="middle">
-    <el-col :span="3">
+    <el-col :span="3" class="warp-label">
       <el-text truncated line-clamp="1">{{ $t('Warp File Path') + ':' }}</el-text>
     </el-col>
     <el-col :span="8">
@@ -114,7 +113,7 @@ function lockOtherTargets(seq: number, isLock: boolean) {
     </el-col>
   </el-row>
   <el-row class="warp-row" justify="start" align="middle">
-    <el-col :span="3">
+    <el-col :span="3" class="warp-label">
       <el-text truncated line-clamp="1">{{ $t('Warp File Name') + ':' }}</el-text>
     </el-col>
     <el-col :span="8">
@@ -161,5 +160,9 @@ function lockOtherTargets(seq: number, isLock: boolean) {
 .warp-row {
   padding: 10px;
   max-width: 1200px;
+}
+
+.warp-label {
+  min-width: 115px;
 }
 </style>
