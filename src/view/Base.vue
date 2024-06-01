@@ -141,7 +141,7 @@ function lockOtherTargets(seq: number, isLock: boolean) {
     </el-tooltip>
   </div>
   <div>
-    <el-space style="padding-top: 20px" wrap>
+    <el-space style="padding-top: 20px;" alignment="normal" wrap>
       <div v-for="item in cardsData" :key="cardsData.length" class="card-item">
         <warp-target-card v-bind="toRefs(item)" @save="save" @edit="edit" @remove="remove">
         </warp-target-card>
