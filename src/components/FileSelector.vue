@@ -56,7 +56,7 @@ function handleClose(_: () => void) {
   cancel()
 }
 
-function cancel(){
+function cancel() {
   EventBus.emit('FileSelected', null)
   state.visible = false
 }
@@ -90,8 +90,11 @@ function loadData(node: Node, resolve: (data: FileTree[]) => void, reject: () =>
         })
       })
       resolve(dataArray)
-      if (!!state.filter)
-        treeRef.value?.filter(null)
+      if (state.filterFunc != FileTreeFilters.noFilter) {
+        node.childNodes.forEach((val) => {
+          val.visible = treeRef!.value!.store.filterNodeMethod(null, val.data, val)
+        })
+      }
     }, () => {
       reject()
     })
@@ -102,10 +105,12 @@ onMounted(() => {
   EventBus.on('SelectFile', (config: FileSelectConfig) => {
     state.title = config.title
     state.visible = true
-    if (config.filter)
-      state.filter = config.filter
-    else
-      state.filter = FileTreeFilters.noFilter
+    if (!config.filter)
+      config.filter = FileTreeFilters.noFilter
+    if (state.filterFunc != config.filter) {
+      state.filterFunc = config.filter
+      treeRef.value?.filter(null)
+    }
   })
 })
 

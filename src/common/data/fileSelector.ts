@@ -20,36 +20,40 @@
  */
 
 import {FilterNodeMethodFunction, TreeNodeData} from "element-plus/es/components/tree/src/tree.type";
-import Node from "element-plus/es/components/tree/src/model/node";
 import {FileTree} from "@/common/data/fileTree.ts";
+
+export type FileTreeFilterFunc = (data: FileTree) => boolean
+
+export interface FileSelectConfig {
+    title: string
+    filter?: FileTreeFilterFunc
+}
 
 export class FileSelectorState {
     title: string
     visible: boolean
-    filter: FilterNodeMethodFunction | undefined
+    filter: FilterNodeMethodFunction
+    filterFunc: FileTreeFilterFunc
 
     constructor() {
         this.title = ""
         this.visible = false
-        this.filter = noFilter
+        this.filterFunc = noFilter
+        this.filter = (_, nodeData: TreeNodeData, __) => {
+            return this.filterFunc(nodeData as FileTree)
+        }
     }
 }
 
-export interface FileSelectConfig {
-    title: string
-    filter?: FilterNodeMethodFunction | undefined
-}
+const noFilter = (_: FileTree) => true
 
-const noFilter = undefined
-
-const dirFilter = (_: any, data: TreeNodeData, __: Node) => {
+const dirFilter = (data: FileTree) => {
     return !data.hasOwnProperty('size')
 }
 
-const fileNameFilter = (suffixes: Array<String>) => {
+const fileNameFilter = (suffixes: Array<string>) => {
     if (suffixes.length > 0)
-        return (_: any, data: TreeNodeData, __: Node) => {
-            data = data as FileTree
+        return (data: FileTree) => {
             let result = false;
             // reserve directory
             if (!data.hasOwnProperty('size'))
