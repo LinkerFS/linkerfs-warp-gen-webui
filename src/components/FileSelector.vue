@@ -119,18 +119,20 @@ onUnmounted(() => {
 })
 </script>
 <template>
-  <el-dialog v-model="state.visible" :title="$t(state.title)" :before-close="handleClose" width="800">
-    <el-tree
-        ref="treeRef"
-        style="max-width: 600px"
-        node-key="fullPath"
-        :load="loadData"
-        :filter-node-method="state.filter"
-        :data="data"
-        :props="treeProps"
-        highlight-current
-        lazy
-    />
+  <el-dialog v-model="state.visible" :title="$t(state.title)" :before-close="handleClose">
+    <div style="overflow: auto;max-height: 60vh">
+      <el-tree
+          class="file-selector-tree"
+          ref="treeRef"
+          node-key="fullPath"
+          :load="loadData"
+          :filter-node-method="state.filter"
+          :data="data"
+          :props="treeProps"
+          highlight-current
+          lazy
+      />
+    </div>
     <template #footer>
       <div class="dialog-footer">
         <el-button @click="cancel">{{ $t("Cancel") }}</el-button>
@@ -142,5 +144,8 @@ onUnmounted(() => {
   </el-dialog>
 </template>
 <style scoped>
-
+.file-selector-tree{
+  min-width: 100%;
+  display: inline-block;
+}
 </style>
