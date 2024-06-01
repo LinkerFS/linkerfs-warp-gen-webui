@@ -33,6 +33,7 @@ import {ElInput} from "element-plus";
 const warpFile = reactive({path: "", fileName: ""})
 const cardsData = reactive(Array<CardData>())
 const pathInputRef = ref<InstanceType<typeof ElInput>>()
+const disableAdd = ref(false)
 
 interface CardData {
   seq: Ref<number>
@@ -91,6 +92,7 @@ function lockOtherTargets(seq: number, isLock: boolean) {
       cardsData[i].isDisable = isLock
     }
   }
+  disableAdd.value = isLock
 }
 
 </script>
@@ -135,7 +137,7 @@ function lockOtherTargets(seq: number, isLock: boolean) {
         :content="$t('Add Target')"
         placement="top"
     >
-      <el-button type="primary" :icon="Plus" @click="addTarget" circle></el-button>
+      <el-button type="primary" :icon="Plus" @click="addTarget" :disabled="disableAdd" circle></el-button>
     </el-tooltip>
   </div>
   <div>
