@@ -30,7 +30,10 @@ import {FileTreeFilters} from "@/common/data/fileSelector.ts";
 import {setInputDisplayTail} from "@/common/utils/dom.ts";
 import {ElInput, FormInstance, FormRules} from "element-plus";
 import {fileNameRegex} from "@/common/utils/validator.ts";
+import {createWarp, WarpConfig} from "@/common/api/warp.ts";
+import {useI18n} from 'vue-i18n'
 
+const {t} = useI18n({useScope: 'global'})
 const warpFile = reactive({path: "", fileName: ""})
 const cardsData = reactive(Array<CardData>())
 const pathInputRef = ref<InstanceType<typeof ElInput>>()
@@ -60,7 +63,7 @@ const fileCallback = (fileInfo: FileInfo | null) => {
 function openFile() {
   EventBus.on('FileSelected', fileCallback)
   EventBus.emit('SelectFile', {
-    title: "Please select a dir",
+    title: t("Please select a dir"),
     filter: FileTreeFilters.dirFilter
   })
 }
@@ -69,7 +72,11 @@ function generateWarpFile(form: FormInstance | undefined) {
   if (!form) return
   form.validate((valid) => {
     if (valid) {
-      //todo call api
+      let config: WarpConfig = {
+        fileName: warpFile.fileName,
+        warpTargets: cardsData.map(val => val.target)
+      }
+      createWarp(warpFile.path, [config])
     }
   })
 }
@@ -109,7 +116,7 @@ function lockOtherTargets(seq: number, isLock: boolean) {
 
 function validatePath(_: any, value: any, callback: any) {
   if (value === '') {
-    callback(new Error('Save Path required'))
+    callback(new Error(t('Save Path required')))
   } else {
     callback()
   }
@@ -117,9 +124,9 @@ function validatePath(_: any, value: any, callback: any) {
 
 function validateFileName(_: any, value: any, callback: any) {
   if (value === '') {
-    callback(new Error('File name required'))
+    callback(new Error(t('File name required')))
   } else if (!value.match(fileNameRegex)) {
-    callback(new Error('File name is invalid'))
+    callback(new Error(t('File name is invalid')))
   } else {
     callback()
   }
