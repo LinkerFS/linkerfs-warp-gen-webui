@@ -20,14 +20,16 @@
   -->
 
 <script setup lang="ts">
-import {Ref, ref, toRef} from "vue";
+import {computed, Ref, ref, toRef} from "vue";
 import {WarpTarget} from "@/common/data/warpFile.ts";
 import {Check, Delete, Edit} from "@element-plus/icons-vue";
 import {EventBus} from "@/common/utils/mitt.ts";
 import {FileInfo} from "@/common/data/fileTree.ts";
 import {ElInput} from "element-plus";
 import {setInputDisplayTail} from "@/common/utils/dom.ts";
+import {useI18n} from 'vue-i18n'
 
+const {t} = useI18n({useScope: 'global'})
 
 const props = defineProps<{
   target: Ref<WarpTarget>,
@@ -46,6 +48,9 @@ const fileTotalSize = toRef(props.fileTotalSize)
 const isDisable = toRef(props.isDisable)
 const isEditable = ref(false)
 const pathInputRef = ref<InstanceType<typeof ElInput>>()
+const targetNumStr = computed(() => {
+  return `${t('Target')} ${seq.value.toString()}`
+})
 
 const fileCallback = (fileInfo: FileInfo | null) => {
   if (fileInfo) {
@@ -75,7 +80,7 @@ function save() {
   <el-card>
     <template #header>
       <div class="card-header">
-        <span>Part {{ seq }}</span>
+        <span>{{ targetNumStr }}</span>
       </div>
     </template>
     <el-form label-position="right" label-width="auto" style="max-width: 400px">
@@ -91,7 +96,7 @@ function save() {
       <el-form-item v-if="isEditable">
         <el-button @click="selectFile" type="primary"
                    style="margin-left: auto;margin-right: auto;width: 50%">
-          {{ "Open" }}
+          {{ $t("Open") }}
         </el-button>
       </el-form-item>
     </el-form>
