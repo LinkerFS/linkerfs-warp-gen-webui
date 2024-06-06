@@ -28,12 +28,14 @@ import {EventBus} from "@/common/utils/mitt.ts";
 import {FileInfo} from "@/common/data/fileTree.ts";
 import {FileTreeFilters} from "@/common/data/fileSelector.ts";
 import {setInputDisplayTail} from "@/common/utils/dom.ts";
-import {ElInput} from "element-plus";
+import {ElInput, FormInstance, FormRules} from "element-plus";
+import {fileNameRegex} from "@/common/utils/validator.ts";
 
 const warpFile = reactive({path: "", fileName: ""})
 const cardsData = reactive(Array<CardData>())
 const pathInputRef = ref<InstanceType<typeof ElInput>>()
 const disableAdd = ref(false)
+const formRef = ref<FormInstance>()
 
 interface CardData {
   seq: Ref<number>
@@ -41,6 +43,11 @@ interface CardData {
   isDisable: Ref<boolean>
   fileTotalSize: Ref<bigint>
 }
+
+const validateRule = reactive<FormRules<typeof warpFile>>({
+  path: [{validator: validatePath, trigger: "blur"}],
+  fileName: [{validator: validateFileName, trigger: "blur"}]
+})
 
 const fileCallback = (fileInfo: FileInfo | null) => {
   if (fileInfo) {
@@ -58,8 +65,13 @@ function openFile() {
   })
 }
 
-function generateWarpFile() {
-
+function generateWarpFile(form: FormInstance | undefined) {
+  if (!form) return
+  form.validate((valid) => {
+    if (valid) {
+      //todo call api
+    }
+  })
 }
 
 function addTarget() {
@@ -95,48 +107,67 @@ function lockOtherTargets(seq: number, isLock: boolean) {
   disableAdd.value = isLock
 }
 
+function validatePath(_: any, value: any, callback: any) {
+  if (value === '') {
+    callback(new Error('Save Path required'))
+  } else {
+    callback()
+  }
+}
+
+function validateFileName(_: any, value: any, callback: any) {
+  if (value === '') {
+    callback(new Error('File name required'))
+  } else if (!value.match(fileNameRegex)) {
+    callback(new Error('File name is invalid'))
+  } else {
+    callback()
+  }
+}
 </script>
 <template>
-  <el-row class="warp-row" justify="start" align="middle">
-    <el-col :span="3" class="warp-label">
-      <el-text truncated line-clamp="1">{{ $t('Warp File Path') + ':' }}</el-text>
-    </el-col>
-    <el-col :span="8">
-      <el-input
-          class="warp-input"
-          v-model="warpFile.path"
-          ref="pathInputRef"
-          disabled
-          :placeholder="$t('Please select the path to save wrap file')">
-      </el-input>
-    </el-col>
-    <el-col :span="4">
-      <el-button @click="openFile" type="primary" class="warp-button">{{ $t("Open") }}</el-button>
-    </el-col>
-  </el-row>
-  <el-row class="warp-row" justify="start" align="middle">
-    <el-col :span="3" class="warp-label">
-      <el-text truncated line-clamp="1">{{ $t('Warp File Name') + ':' }}</el-text>
-    </el-col>
-    <el-col :span="8">
-      <el-input
-          class="warp-input"
-          v-model="warpFile.fileName"
-          clearable
-          :placeholder="$t('Please input file name')">
-      </el-input>
-    </el-col>
-    <el-col :span="4">
-      <el-button @click="generateWarpFile" type="success" class="warp-button">{{ $t("Generate") }}</el-button>
-    </el-col>
-  </el-row>
+  <el-form ref="formRef" :model="warpFile" :rules="validateRule" label-position="right" label-width="auto">
+    <el-row class="warp-row" justify="start" align="middle">
+      <el-form-item :label="$t('Warp File Path') + ':'" class="warp-form-item" prop="path">
+        <el-col :span="12">
+          <el-input
+              class="warp-input"
+              v-model="warpFile.path"
+              ref="pathInputRef"
+              disabled
+              :placeholder="$t('Please select the path to save wrap file')">
+          </el-input>
+        </el-col>
+        <el-col :span="4">
+          <el-button @click="openFile" type="primary" class="warp-button">{{ $t("Open") }}</el-button>
+        </el-col>
+      </el-form-item>
+    </el-row>
+    <el-row class="warp-row" justify="start" align="middle">
+      <el-form-item :label="$t('Warp File Name') + ':'" class="warp-form-item" prop="fileName">
+        <el-col :span="12">
+          <el-input
+              class="warp-input"
+              v-model="warpFile.fileName"
+              clearable
+              :placeholder="$t('Please input file name')">
+          </el-input>
+        </el-col>
+        <el-col :span="4">
+          <el-button @click="generateWarpFile(formRef)" type="success" class="warp-button">{{
+              $t("Generate")
+            }}
+          </el-button>
+        </el-col>
+      </el-form-item>
+    </el-row>
+  </el-form>
 
   <div style="padding-top: 20px">
     <el-tooltip
         effect="light"
         :content="$t('Add Target')"
-        placement="top"
-    >
+        placement="top">
       <el-button type="primary" :icon="Plus" @click="addTarget" :disabled="disableAdd" circle></el-button>
     </el-tooltip>
   </div>
@@ -164,7 +195,8 @@ function lockOtherTargets(seq: number, isLock: boolean) {
   max-width: 1200px;
 }
 
-.warp-label {
-  min-width: 115px;
+.warp-form-item {
+  width: 95%;
+  max-width: 900px;
 }
 </style>
