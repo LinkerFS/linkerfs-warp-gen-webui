@@ -55,7 +55,7 @@ const formRef = ref<FormInstance>()
 const validateRule = reactive<FormRules<typeof warpTarget>>({
   filePath: [{validator: validateFilePath, trigger: 'blur'}],
   dataOffset: [{validator: validateDataOffset, trigger: 'blur'}, {validator: validateSize, trigger: 'blur'}],
-  sizeToRead: [{validator: validateSizeToRead, trigger: 'blur'}, {validator: validateSize, trigger: 'blur'}]
+  dataSize: [{validator: validateDataSize, trigger: 'blur'}, {validator: validateSize, trigger: 'blur'}]
 })
 const fileCallback = (fileInfo: FileInfo | null) => {
   if (fileInfo) {
@@ -67,7 +67,11 @@ const fileCallback = (fileInfo: FileInfo | null) => {
 }
 
 function validateSize(_: any, value: any, callback: any) {
-  if (BigInt(value) > BigInt("9223372036854775807")) {
+  if(BigInt(value)<BigInt(0))
+  {
+    callback(new Error(t('value can not be negative')))
+  }
+  else if (BigInt(value) > BigInt("9223372036854775807")) {
     callback(new Error(t('value can not more than 9223372036854775807')))
   }
   callback()
@@ -87,20 +91,20 @@ function validateDataOffset(_: any, value: any, callback: any) {
   if (value === '') {
     callback(new Error(t('Data offset required')))
   } else {
-    if (BigInt(warpTarget.value.sizeToRead) > 0) {
+    if (BigInt(warpTarget.value.dataSize) > 0) {
       if (!formRef.value) return
-      formRef.value.validateField('sizeToRead')
+      formRef.value.validateField('dataSize')
     }
     callback()
   }
 }
 
-function validateSizeToRead(_: any, value: any, callback: any) {
+function validateDataSize(_: any, value: any, callback: any) {
   if (value === '') {
-    callback(new Error(t('Size to read required')))
-  } else if (BigInt(warpTarget.value.sizeToRead) === BigInt(0)) {
-    callback(new Error(t('Size to read must more than 0')))
-  } else if (BigInt(warpTarget.value.dataOffset) + BigInt(warpTarget.value.sizeToRead) > fileTotalSize.value) {
+    callback(new Error(t('Data size required')))
+  } else if (BigInt(warpTarget.value.dataSize) === BigInt(0)) {
+    callback(new Error(t('Data size must more than 0')))
+  } else if (BigInt(warpTarget.value.dataOffset) + BigInt(warpTarget.value.dataSize) > fileTotalSize.value) {
     callback(new Error(t('data is out of file range')))
   } else {
     callback()
@@ -152,8 +156,8 @@ function reset(form: FormInstance | undefined) {
       <el-form-item :label="$t('Data Offset')+'(Byte):'" prop="dataOffset">
         <el-input v-model="warpTarget.dataOffset" :disabled="!isEditable" :type="'number'"></el-input>
       </el-form-item>
-      <el-form-item :label="$t('Data Size')+'(Byte):'" prop="sizeToRead">
-        <el-input v-model="warpTarget.sizeToRead" :disabled="!isEditable" :type="'number'"></el-input>
+      <el-form-item :label="$t('Data Size')+'(Byte):'" prop="dataSize">
+        <el-input v-model="warpTarget.dataSize" :disabled="!isEditable" :type="'number'"></el-input>
       </el-form-item>
       <el-form-item v-if="isEditable">
         <el-button @click="selectFile" type="primary"
