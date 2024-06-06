@@ -21,6 +21,6 @@
 
 export class WarpTarget {
     filePath: string = ""
-    dataOffset: number = 0
-    sizeToRead: number = 0
+    dataOffset: string = "0"
+    sizeToRead: string = "0"
 }

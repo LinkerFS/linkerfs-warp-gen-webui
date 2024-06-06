@@ -20,12 +20,12 @@
   -->
 
 <script setup lang="ts">
-import {computed, Ref, ref, toRef} from "vue";
+import {computed, reactive, Ref, ref, toRef} from "vue";
 import {WarpTarget} from "@/common/data/warpFile.ts";
-import {Check, Delete, Edit} from "@element-plus/icons-vue";
+import {Check, Close, Delete, Edit} from "@element-plus/icons-vue";
 import {EventBus} from "@/common/utils/mitt.ts";
 import {FileInfo} from "@/common/data/fileTree.ts";
-import {ElInput} from "element-plus";
+import {ElInput, FormInstance, FormRules} from "element-plus";
 import {setInputDisplayTail} from "@/common/utils/dom.ts";
 import {useI18n} from 'vue-i18n'
 
@@ -51,7 +51,12 @@ const pathInputRef = ref<InstanceType<typeof ElInput>>()
 const targetNumStr = computed(() => {
   return `${t('Target')} ${seq.value.toString()}`
 })
-
+const formRef = ref<FormInstance>()
+const validateRule = reactive<FormRules<typeof warpTarget>>({
+  filePath: [{validator: validateFilePath, trigger: 'blur'}],
+  dataOffset: [{validator: validateDataOffset, trigger: 'blur'}, {validator: validateSize, trigger: 'blur'}],
+  sizeToRead: [{validator: validateSizeToRead, trigger: 'blur'}, {validator: validateSize, trigger: 'blur'}]
+})
 const fileCallback = (fileInfo: FileInfo | null) => {
   if (fileInfo) {
     warpTarget.value.filePath = fileInfo.fullPath
@@ -59,6 +64,47 @@ const fileCallback = (fileInfo: FileInfo | null) => {
     setInputDisplayTail(pathInputRef)
   }
   EventBus.off('FileSelected', fileCallback)
+}
+
+function validateSize(_: any, value: any, callback: any) {
+  if (BigInt(value) > BigInt("9223372036854775807")) {
+    callback(new Error(t('value can not more than 9223372036854775807')))
+  }
+  callback()
+}
+
+function validateFilePath(_e: any, value: any, callback: any) {
+  if (value === '') {
+    callback(new Error(t('File path required')))
+  } else if (fileTotalSize.value === BigInt(0)) {
+    callback(new Error(t('Must be a File')))
+  } else {
+    callback()
+  }
+}
+
+function validateDataOffset(_: any, value: any, callback: any) {
+  if (value === '') {
+    callback(new Error(t('Data offset required')))
+  } else {
+    if (BigInt(warpTarget.value.sizeToRead) > 0) {
+      if (!formRef.value) return
+      formRef.value.validateField('sizeToRead')
+    }
+    callback()
+  }
+}
+
+function validateSizeToRead(_: any, value: any, callback: any) {
+  if (value === '') {
+    callback(new Error(t('Size to read required')))
+  } else if (BigInt(warpTarget.value.sizeToRead) === BigInt(0)) {
+    callback(new Error(t('Size to read must more than 0')))
+  } else if (BigInt(warpTarget.value.dataOffset) + BigInt(warpTarget.value.sizeToRead) > fileTotalSize.value) {
+    callback(new Error(t('data is out of file range')))
+  } else {
+    callback()
+  }
 }
 
 function selectFile() {
@@ -75,6 +121,21 @@ function save() {
   isEditable.value = false
   emit('save', seq.value)
 }
+
+function submit(form: FormInstance | undefined) {
+  if (!form) return
+  form.validate((valid) => {
+    if (valid) {
+      save()
+    }
+  })
+}
+
+function reset(form: FormInstance | undefined) {
+  if (!form) return
+  form.resetFields()
+  save()
+}
 </script>
 <template>
   <el-card>
@@ -83,14 +144,15 @@ function save() {
         <span>{{ targetNumStr }}</span>
       </div>
     </template>
-    <el-form label-position="right" label-width="auto" style="max-width: 400px">
-      <el-form-item :label="$t('File Path:')">
+    <el-form ref="formRef" :model="warpTarget" :rules="validateRule" label-position="right" label-width="auto"
+             style="max-width: 400px">
+      <el-form-item :label="$t('File Path:')" prop="filePath">
         <el-input v-model="warpTarget.filePath" ref="pathInputRef" disabled></el-input>
       </el-form-item>
-      <el-form-item :label="$t('Data Offset')+'(Byte):'">
+      <el-form-item :label="$t('Data Offset')+'(Byte):'" prop="dataOffset">
         <el-input v-model="warpTarget.dataOffset" :disabled="!isEditable" :type="'number'"></el-input>
       </el-form-item>
-      <el-form-item :label="$t('Data Size')+'(Byte):'">
+      <el-form-item :label="$t('Data Size')+'(Byte):'" prop="sizeToRead">
         <el-input v-model="warpTarget.sizeToRead" :disabled="!isEditable" :type="'number'"></el-input>
       </el-form-item>
       <el-form-item v-if="isEditable">
@@ -108,7 +170,15 @@ function save() {
             :content="$t('Save')"
             placement="top"
         >
-          <el-button type="success" :icon="Check" @click="save" :disabled="isDisable"></el-button>
+          <el-button type="success" :icon="Check" @click="submit(formRef)" :disabled="isDisable"></el-button>
+        </el-tooltip>
+        <el-tooltip
+            v-if="isEditable"
+            effect="light"
+            :content="$t('Reset')"
+            placement="top"
+        >
+          <el-button type="danger" :icon="Close" @click="reset(formRef)" :disabled="isDisable"></el-button>
         </el-tooltip>
         <el-tooltip
             v-if="!isEditable"
