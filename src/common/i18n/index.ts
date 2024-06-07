@@ -19,8 +19,11 @@
  * along with linkerfs-warp-gen-webui. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import {createI18n} from "vue-i18n";
+
 const i18nConfig = {
     legacy: false,
-    locale: navigator.language
+    locale: navigator.language,
+    missingWarn: false
 }
-export {i18nConfig}
+export const i18n = createI18n(i18nConfig)
