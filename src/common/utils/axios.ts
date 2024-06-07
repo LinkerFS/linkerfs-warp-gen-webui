@@ -20,7 +20,10 @@
  */
 
 import axios from "axios";
+import {ElMessage} from "element-plus";
+import {i18n} from '@/common/i18n'
 
+const t = i18n.global.t
 const Axios = axios.create({
     baseURL: '/api',
     timeout: 3000,
@@ -29,18 +32,44 @@ Axios.defaults.headers.post['Content-Type'] = 'application/json;charset=UTF-8'
 Axios.interceptors.request.use(
     config => config,
     error => {
-        //todo handle request error
+        ElMessage({
+            message: `${t('Request failed: ')}${error.message}`,
+            type: 'error'
+        })
         return Promise.reject(error)
     }
 )
 Axios.interceptors.response.use(
     response => {
-        //todo handler response
+        if (response.data.code === ResponseStatus.Response_OK) {
+            if (response.data.data == null) {
+                ElMessage({
+                    message: response.data.msg,
+                    type: 'success'
+                })
+            } else {
+                return response.data.data
+            }
+        } else {
+            ElMessage({
+                message: response.data.msg,
+                type: 'error'
+            })
+            return Promise.reject()
+        }
         return response.data?.data
     },
     error => {
-        //todo handle response error
+        ElMessage({
+            message: `${t('Request failed: ')}${error.message}`,
+            type: 'error'
+        })
         return Promise.reject(error)
     }
 )
+
+enum ResponseStatus {
+    Response_OK = 200,
+}
+
 export default Axios
