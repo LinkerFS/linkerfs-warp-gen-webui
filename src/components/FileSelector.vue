@@ -27,6 +27,7 @@ import {EventBus} from "@/common/utils/mitt.ts";
 import {ElTree} from "element-plus";
 import {listDir, ListDirResp} from "@/common/api/file.ts";
 import type Node from 'element-plus/es/components/tree/src/model/node'
+import {ElMessage} from "element-plus"
 
 const state = reactive(new FileSelectorState)
 const data = ref<FileTree[]>()
@@ -47,8 +48,10 @@ function fileSelected() {
     })
     state.visible = false
   } else {
-    console.log(data)
-    //todo inform not select
+    ElMessage({
+      message:state.title,
+      type:'error'
+    })
   }
 }
 
@@ -144,7 +147,7 @@ onUnmounted(() => {
   </el-dialog>
 </template>
 <style scoped>
-.file-selector-tree{
+.file-selector-tree {
   min-width: 100%;
   display: inline-block;
 }
