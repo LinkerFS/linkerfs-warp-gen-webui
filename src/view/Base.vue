@@ -34,7 +34,7 @@ import {createWarp, WarpConfig} from "@/common/api/warp.ts";
 import {useI18n} from 'vue-i18n'
 
 const {t} = useI18n({useScope: 'global'})
-const warpFile = reactive({path: "", fileName: ""})
+const warpFile = reactive({path: "", fileName: "", isDir: false})
 const cardsData = reactive(Array<CardData>())
 const pathInputRef = ref<InstanceType<typeof ElInput>>()
 const disableAdd = ref(false)
@@ -55,6 +55,7 @@ const validateRule = reactive<FormRules<typeof warpFile>>({
 const fileCallback = (fileInfo: FileInfo | null) => {
   if (fileInfo) {
     warpFile.path = fileInfo.fullPath
+    warpFile.isDir = fileInfo.size === BigInt(0)
     setInputDisplayTail(pathInputRef)
   }
   EventBus.off('FileSelected', fileCallback)
@@ -117,6 +118,8 @@ function lockOtherTargets(seq: number, isLock: boolean) {
 function validatePath(_: any, value: any, callback: any) {
   if (value === '') {
     callback(new Error(t('Save Path required')))
+  } else if (!warpFile.isDir) {
+    callback(new Error(t('Save path must be a directory')))
   } else {
     callback()
   }
@@ -127,7 +130,12 @@ function validateFileName(_: any, value: any, callback: any) {
     callback(new Error(t('File name required')))
   } else if (!value.match(fileNameRegex)) {
     callback(new Error(t('File name is invalid')))
-  } else {
+  }
+  else if(cardsData.length===0)
+  {
+    callback(new Error(t('Please add target below')))
+  }
+  else {
     callback()
   }
 }
