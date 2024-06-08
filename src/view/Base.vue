@@ -113,6 +113,7 @@ function generateWarpFile(form: FormInstance | undefined) {
           messageDialog.value.description = t('file created successfully')
         }
         messageDialog.value.visible = true
+      }, () => {
       })
     }
   })
