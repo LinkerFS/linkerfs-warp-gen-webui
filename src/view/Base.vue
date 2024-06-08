@@ -30,8 +30,11 @@ import {FileTreeFilters} from "@/common/data/fileSelector.ts";
 import {setInputDisplayTail} from "@/common/utils/dom.ts";
 import {ElInput, FormInstance, FormRules} from "element-plus";
 import {fileNameRegex} from "@/common/utils/validator.ts";
-import {createWarp, WarpConfig} from "@/common/api/warp.ts";
+import {createWarp, CreateWarpResponse, WarpConfig} from "@/common/api/warp.ts";
 import {useI18n} from 'vue-i18n'
+import MessageDialog from "@/components/MessageDialog.vue";
+import {IconType, MessageDialogConfig} from "@/common/data/messageDialog.ts";
+import WarpFileCreateResult from "@/components/WarpFileCreateResult.vue";
 
 const {t} = useI18n({useScope: 'global'})
 const warpFile = reactive({path: "", fileName: "", isDir: false})
@@ -39,6 +42,17 @@ const cardsData = reactive(Array<CardData>())
 const pathInputRef = ref<InstanceType<typeof ElInput>>()
 const disableAdd = ref(false)
 const formRef = ref<FormInstance>()
+const messageDialog = ref<MessageDialogConfig>({
+  title: t('Create Result'),
+  visible: false,
+  icon: IconType.SUCCESS,
+  description: ""
+})
+const createResult = ref<CreateWarpResponse>({
+  warpFiles: [],
+  hardlinkFiles: [],
+  failedFiles: []
+})
 
 interface CardData {
   seq: Ref<number>
@@ -77,7 +91,22 @@ function generateWarpFile(form: FormInstance | undefined) {
         fileName: warpFile.fileName,
         warpTargets: cardsData.map(val => val.target)
       }
-      createWarp(warpFile.path, [config])
+      createWarp(warpFile.path, [config]).then(data => {
+        createResult.value = data as unknown as CreateWarpResponse
+        if (createResult.value.failedFiles.length > 0) {
+          if (createResult.value.warpFiles.length > 0 || createResult.value.hardlinkFiles.length > 0) {
+            messageDialog.value.icon = IconType.WARNING
+            messageDialog.value.description = t('Some file failed to create ')
+          } else {
+            messageDialog.value.icon = IconType.ERROR
+            messageDialog.value.description = t('All failed to create')
+          }
+        } else {
+          messageDialog.value.icon = IconType.SUCCESS
+          messageDialog.value.description = t('file created successfully')
+        }
+        messageDialog.value.visible = true
+      })
     }
   })
 }
@@ -130,12 +159,9 @@ function validateFileName(_: any, value: any, callback: any) {
     callback(new Error(t('File name required')))
   } else if (!value.match(fileNameRegex)) {
     callback(new Error(t('File name is invalid')))
-  }
-  else if(cardsData.length===0)
-  {
+  } else if (cardsData.length === 0) {
     callback(new Error(t('Please add target below')))
-  }
-  else {
+  } else {
     callback()
   }
 }
@@ -194,6 +220,9 @@ function validateFileName(_: any, value: any, callback: any) {
       </div>
     </el-space>
   </div>
+  <MessageDialog :config="messageDialog">
+    <WarpFileCreateResult v-bind="createResult"></WarpFileCreateResult>
+  </MessageDialog>
 </template>
 <style scoped>
 .warp-button {

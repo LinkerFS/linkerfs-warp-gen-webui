@@ -39,3 +39,9 @@ interface CreateWarpReq {
     savePath: string
     warpConfigs: WarpConfig[]
 }
+
+export interface CreateWarpResponse {
+    warpFiles: string[]
+    hardlinkFiles: string[]
+    failedFiles: string[]
+}
