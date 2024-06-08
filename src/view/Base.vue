@@ -28,7 +28,7 @@ import {EventBus} from "@/common/utils/mitt.ts";
 import {FileInfo} from "@/common/data/fileTree.ts";
 import {FileTreeFilters} from "@/common/data/fileSelector.ts";
 import {setInputDisplayTail} from "@/common/utils/dom.ts";
-import {ElInput, FormInstance, FormRules} from "element-plus";
+import {ElInput, ElMessage, FormInstance, FormRules} from "element-plus";
 import {fileNameRegex} from "@/common/utils/validator.ts";
 import {createWarp, CreateWarpResponse, WarpConfig} from "@/common/api/warp.ts";
 import {useI18n} from 'vue-i18n'
@@ -87,6 +87,13 @@ function generateWarpFile(form: FormInstance | undefined) {
   if (!form) return
   form.validate((valid) => {
     if (valid) {
+      if (cardsData.length === 0) {
+        ElMessage({
+          message: t("Add at least one target"),
+          type: "error"
+        })
+        return
+      }
       let config: WarpConfig = {
         fileName: warpFile.fileName,
         warpTargets: cardsData.map(val => val.target)
@@ -159,8 +166,6 @@ function validateFileName(_: any, value: any, callback: any) {
     callback(new Error(t('File name required')))
   } else if (!value.match(fileNameRegex)) {
     callback(new Error(t('File name is invalid')))
-  } else if (cardsData.length === 0) {
-    callback(new Error(t('Please add target below')))
   } else {
     callback()
   }
