@@ -57,7 +57,6 @@ Axios.interceptors.response.use(
             })
             return Promise.reject()
         }
-        return response.data?.data
     },
     error => {
         ElMessage({
