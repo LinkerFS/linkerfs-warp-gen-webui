@@ -35,6 +35,7 @@ import {useI18n} from 'vue-i18n'
 import MessageDialog from "@/components/MessageDialog.vue";
 import {IconType, MessageDialogConfig} from "@/common/data/messageDialog.ts";
 import WarpFileCreateResult from "@/components/WarpFileCreateResult.vue";
+import {defaultTitle, setMessageConfig} from "@/common/data/warpCreateResult.ts";
 
 const {t} = useI18n({useScope: 'global'})
 const warpFile = reactive({path: "", fileName: "", isDir: false})
@@ -43,7 +44,7 @@ const pathInputRef = ref<InstanceType<typeof ElInput>>()
 const disableAdd = ref(false)
 const formRef = ref<FormInstance>()
 const messageDialog = ref<MessageDialogConfig>({
-  title: t('Create Result'),
+  title: defaultTitle,
   visible: false,
   icon: IconType.SUCCESS,
   description: ""
@@ -100,18 +101,7 @@ function generateWarpFile(form: FormInstance | undefined) {
       }
       createWarp(warpFile.path, [config]).then(data => {
         createResult.value = data as unknown as CreateWarpResponse
-        if (createResult.value.failedFiles.length > 0) {
-          if (createResult.value.warpFiles.length > 0 || createResult.value.hardlinkFiles.length > 0) {
-            messageDialog.value.icon = IconType.WARNING
-            messageDialog.value.description = t('Some file failed to create ')
-          } else {
-            messageDialog.value.icon = IconType.ERROR
-            messageDialog.value.description = t('All failed to create')
-          }
-        } else {
-          messageDialog.value.icon = IconType.SUCCESS
-          messageDialog.value.description = t('file created successfully')
-        }
+        setMessageConfig(messageDialog, createResult.value)
         messageDialog.value.visible = true
       }, () => {
       })
