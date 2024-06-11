@@ -41,6 +41,6 @@ const handleSelect = (_: string, keyPath: string[]) => {
       @select="handleSelect"
       router:true
   >
-    <el-menu-item index="base">{{ $t("Base") }}</el-menu-item>
+    <el-menu-item index="base">{{ $t('view.menu.base') }}</el-menu-item>
   </el-menu>
 </template>

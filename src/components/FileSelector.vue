@@ -28,7 +28,9 @@ import {ElTree} from "element-plus";
 import {listDir, ListDirResp} from "@/common/api/file.ts";
 import type Node from 'element-plus/es/components/tree/src/model/node'
 import {ElMessage} from "element-plus"
+import {useI18n} from 'vue-i18n'
 
+const {t} = useI18n({useScope: 'global'})
 const state = reactive(new FileSelectorState)
 const data = ref<FileTree[]>()
 const treeRef = ref<InstanceType<typeof ElTree>>()
@@ -67,7 +69,7 @@ function cancel() {
 function loadData(node: Node, resolve: (data: FileTree[]) => void, reject: () => void) {
   if (node.level == 0) {
     resolve([{
-      name: "File System",
+      name: t('component.fileSelector.filesystem'),
       fullPath: "",
       isEmpty: false
     }])
@@ -122,7 +124,7 @@ onUnmounted(() => {
 })
 </script>
 <template>
-  <el-dialog v-model="state.visible" :title="$t(state.title)" :before-close="handleClose">
+  <el-dialog v-model="state.visible" :title="state.title" :before-close="handleClose">
     <div style="overflow: auto;max-height: 60vh">
       <el-tree
           class="file-selector-tree"
@@ -138,9 +140,9 @@ onUnmounted(() => {
     </div>
     <template #footer>
       <div class="dialog-footer">
-        <el-button @click="cancel">{{ $t("Cancel") }}</el-button>
+        <el-button @click="cancel">{{ $t('action.cancel') }}</el-button>
         <el-button type="primary" @click="fileSelected">
-          {{ $t("Confirm") }}
+          {{ $t('action.confirm') }}
         </el-button>
       </div>
     </template>

@@ -40,12 +40,12 @@ export enum IconType {
 export const getIconTitle = (type: IconType) => {
     switch (type) {
         case IconType.SUCCESS:
-            return t('Success')
+            return t('state.success')
         case IconType.ERROR:
-            return t('Error')
+            return t('state.error')
         case IconType.INFO:
-            return t('Notice')
+            return t('state.notice')
         case IconType.WARNING:
-            return t('Warning')
+            return t('state.warning')
     }
 }

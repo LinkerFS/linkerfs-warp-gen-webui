@@ -49,7 +49,7 @@ const isDisable = toRef(props.isDisable)
 const isEditable = ref(false)
 const pathInputRef = ref<InstanceType<typeof ElInput>>()
 const targetNumStr = computed(() => {
-  return `${t('Target')} ${seq.value.toString()}`
+  return `${t('component.warpTargetCard.target')} ${seq.value.toString()}`
 })
 const formRef = ref<FormInstance>()
 const validateRule = reactive<FormRules<typeof warpTarget>>({
@@ -67,21 +67,19 @@ const fileCallback = (fileInfo: FileInfo | null) => {
 }
 
 function validateSize(_: any, value: any, callback: any) {
-  if(BigInt(value)<BigInt(0))
-  {
-    callback(new Error(t('value can not be negative')))
-  }
-  else if (BigInt(value) > BigInt("9223372036854775807")) {
-    callback(new Error(t('value can not more than 9223372036854775807')))
+  if (BigInt(value) < BigInt(0)) {
+    callback(new Error(t('component.warpTargetCard.valueNegative')))
+  } else if (BigInt(value) > BigInt("9223372036854775807")) {
+    callback(new Error(t('component.warpTargetCard.valueMoreThanInt64')))
   }
   callback()
 }
 
 function validateFilePath(_e: any, value: any, callback: any) {
   if (value === '') {
-    callback(new Error(t('File path required')))
+    callback(new Error(t('component.warpTargetCard.requireFilePath')))
   } else if (fileTotalSize.value === BigInt(0)) {
-    callback(new Error(t('Must be a File')))
+    callback(new Error(t('component.warpTargetCard.mustBeFile')))
   } else {
     callback()
   }
@@ -89,7 +87,7 @@ function validateFilePath(_e: any, value: any, callback: any) {
 
 function validateDataOffset(_: any, value: any, callback: any) {
   if (value === '') {
-    callback(new Error(t('Data offset required')))
+    callback(new Error(t('component.warpTargetCard.requireDataOffset')))
   } else {
     if (BigInt(warpTarget.value.dataSize) > 0) {
       if (!formRef.value) return
@@ -101,11 +99,11 @@ function validateDataOffset(_: any, value: any, callback: any) {
 
 function validateDataSize(_: any, value: any, callback: any) {
   if (value === '') {
-    callback(new Error(t('Data size required')))
+    callback(new Error(t('component.warpTargetCard.requireDataSize')))
   } else if (BigInt(warpTarget.value.dataSize) === BigInt(0)) {
-    callback(new Error(t('Data size must more than 0')))
+    callback(new Error(t('component.warpTargetCard.dataSizePositive')))
   } else if (BigInt(warpTarget.value.dataOffset) + BigInt(warpTarget.value.dataSize) > fileTotalSize.value) {
-    callback(new Error(t('data is out of file range')))
+    callback(new Error(t('component.warpTargetCard.dataOutOfRange')))
   } else {
     callback()
   }
@@ -113,7 +111,7 @@ function validateDataSize(_: any, value: any, callback: any) {
 
 function selectFile() {
   EventBus.on('FileSelected', fileCallback)
-  EventBus.emit('SelectFile', {title: "Please select a File"})
+  EventBus.emit('SelectFile', {title: t('component.warpTargetCard.titleSelectFile')})
 }
 
 function edit() {
@@ -150,19 +148,19 @@ function reset(form: FormInstance | undefined) {
     </template>
     <el-form ref="formRef" :model="warpTarget" :rules="validateRule" label-position="right" label-width="auto"
              style="max-width: 400px">
-      <el-form-item :label="$t('File Path:')" prop="filePath">
+      <el-form-item :label="$t('data.warpTarget.filePath')+':'" prop="filePath">
         <el-input v-model="warpTarget.filePath" ref="pathInputRef" disabled></el-input>
       </el-form-item>
-      <el-form-item :label="$t('Data Offset')+'(Byte):'" prop="dataOffset">
+      <el-form-item :label="$t('data.warpTarget.dataOffset')+':'" prop="dataOffset">
         <el-input v-model="warpTarget.dataOffset" :disabled="!isEditable" :type="'number'"></el-input>
       </el-form-item>
-      <el-form-item :label="$t('Data Size')+'(Byte):'" prop="dataSize">
+      <el-form-item :label="$t('data.warpTarget.dataSize')+':'" prop="dataSize">
         <el-input v-model="warpTarget.dataSize" :disabled="!isEditable" :type="'number'"></el-input>
       </el-form-item>
       <el-form-item v-if="isEditable">
         <el-button @click="selectFile" type="primary"
                    style="margin-left: auto;margin-right: auto;width: 50%">
-          {{ $t("Open") }}
+          {{ $t('action.open') }}
         </el-button>
       </el-form-item>
     </el-form>
@@ -171,7 +169,7 @@ function reset(form: FormInstance | undefined) {
         <el-tooltip
             v-if="isEditable"
             effect="light"
-            :content="$t('Save')"
+            :content="$t('action.save')"
             placement="top"
         >
           <el-button type="success" :icon="Check" @click="submit(formRef)" :disabled="isDisable"></el-button>
@@ -179,7 +177,7 @@ function reset(form: FormInstance | undefined) {
         <el-tooltip
             v-if="isEditable"
             effect="light"
-            :content="$t('Reset')"
+            :content="$t('action.reset')"
             placement="top"
         >
           <el-button type="danger" :icon="Close" @click="reset(formRef)" :disabled="isDisable"></el-button>
@@ -187,7 +185,7 @@ function reset(form: FormInstance | undefined) {
         <el-tooltip
             v-if="!isEditable"
             effect="light"
-            :content="$t('Edit')"
+            :content="$t('action.edit')"
             placement="top"
         >
           <el-button type="primary" :icon="Edit" @click="edit" :disabled="isDisable"></el-button>
@@ -195,7 +193,7 @@ function reset(form: FormInstance | undefined) {
         <el-tooltip
             v-if="!isEditable"
             effect="light"
-            :content="$t('Remove')"
+            :content="$t('action.remove')"
             placement="top"
         >
           <el-button type="danger" :icon="Delete" @click="emit('remove',seq)" :disabled="isDisable"></el-button>

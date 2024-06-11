@@ -40,7 +40,7 @@ const resultTitle = computed(() => getIconTitle(config.icon.value))
       </el-col>
     </el-row>
     <el-row :justify="'end'" :align="'middle'" style="padding-top: 25px">
-      <el-button type="primary" @click="config.visible.value=false">{{ $t('Confirm') }}</el-button>
+      <el-button type="primary" @click="config.visible.value=false">{{ $t('action.confirm') }}</el-button>
     </el-row>
   </el-dialog>
 </template>

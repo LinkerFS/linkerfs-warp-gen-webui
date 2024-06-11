@@ -26,17 +26,17 @@ const prop = defineProps<CreateWarpResponse>()
 </script>
 <template>
   <div v-if="prop.failedFiles.length>0">
-    <el-text tag="div" size="large" type="danger">{{ $t('Failed to create files') + ':' }}</el-text>
+    <el-text tag="div" size="large" type="danger">{{ $t('data.warpCreateResult.failedFiles') }}</el-text>
     <el-text tag="div" v-for="file in prop.failedFiles" :key="file">{{ file }}</el-text>
     <br>
   </div>
   <div v-if="prop.warpFiles.length>0">
-    <el-text tag="div" size="large" type="success">{{ $t('Created warp files') + ':' }}</el-text>
+    <el-text tag="div" size="large" type="success">{{ $t('data.warpCreateResult.createdWarpFiles') }}</el-text>
     <el-text tag="div" v-for="file in prop.warpFiles" :key="file">{{ file }}</el-text>
     <br>
   </div>
   <el-text v-if="prop.hardlinkFiles.length>0">
-    <el-text tag="div" size="large" type="primary">{{ $t('Created hard links') + ':' }}</el-text>
+    <el-text tag="div" size="large" type="primary">{{ $t('data.warpCreateResult.createdHardlinks') }}</el-text>
     <el-text tag="div" v-for="file in prop.hardlinkFiles" :key="file">{{ file }}</el-text>
     <br>
   </el-text>

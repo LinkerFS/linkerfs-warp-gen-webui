@@ -33,7 +33,7 @@ Axios.interceptors.request.use(
     config => config,
     error => {
         ElMessage({
-            message: `${t('Request failed: ')}${error.message}`,
+            message: t('request.failed', {reason: error.message}),
             type: 'error'
         })
         return Promise.reject(error)
@@ -60,7 +60,7 @@ Axios.interceptors.response.use(
     },
     error => {
         ElMessage({
-            message: `${t('Request failed: ')}${error.message}`,
+            message: t('request.failed', {reason: error.message}),
             type: 'error'
         })
         return Promise.reject(error)

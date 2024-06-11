@@ -25,18 +25,18 @@ import {IconType, MessageDialogConfig} from "@/common/data/messageDialog.ts";
 import {i18n} from '@/common/i18n'
 
 const t = i18n.global.t
-export const defaultTitle = t('Create Result')
+export const defaultTitle = t('data.warpCreateResult.title')
 export const setMessageConfig = (config: Ref<MessageDialogConfig>, result: CreateWarpResponse) => {
     if (result.failedFiles.length > 0) {
         if (result.warpFiles.length > 0 || result.hardlinkFiles.length > 0) {
             config.value.icon = IconType.WARNING
-            config.value.description = t('Some file failed to create ')
+            config.value.description = t('data.warpCreateResult.someFail')
         } else {
             config.value.icon = IconType.ERROR
-            config.value.description = t('All failed to create')
+            config.value.description = t('data.warpCreateResult.allFail')
         }
     } else {
         config.value.icon = IconType.SUCCESS
-        config.value.description = t('file created successfully')
+        config.value.description = t('data.warpCreateResult.success')
     }
 }

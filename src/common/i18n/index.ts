@@ -20,10 +20,16 @@
  */
 
 import {createI18n} from "vue-i18n";
+import {en_us} from "@/common/i18n/en-us.ts";
+import {zh_cn} from "@/common/i18n/zh-cn.ts";
+
 
 const i18nConfig = {
+    messages: {'en': en_us, 'zh-cn': zh_cn},
     legacy: false,
-    locale: navigator.language,
-    missingWarn: false
+    fallbackLocale: 'en',
+    locale: navigator.language.toLowerCase(),
+    missingWarn: false,
+    fallbackWarn: false
 }
 export const i18n = createI18n(i18nConfig)
