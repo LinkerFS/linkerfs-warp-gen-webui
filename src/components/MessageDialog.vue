@@ -32,10 +32,10 @@ const resultTitle = computed(() => getIconTitle(config.icon.value))
     <el-row justify="start" align="middle" :gutter="25">
       <el-col :span="2" style="max-width: min-content">
         <el-result :icon="config.icon.value" :title="resultTitle" :sub-title="config.description.value"
-                   style="max-width: min-content">
+                   style="max-width: fit-content">
         </el-result>
       </el-col>
-      <el-col :span="19" style="overflow: auto;max-height: 60vh;">
+      <el-col :span="12" style="overflow: auto;max-height: 60vh;">
         <slot></slot>
       </el-col>
     </el-row>
