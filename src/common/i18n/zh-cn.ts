@@ -41,7 +41,7 @@ const action = {
 
 const request = {
     request: '请求',
-    failed: "@.capitalize:request.request{}@.lower:state.failed{':'} {reason}"
+    failed: "@.capitalize:request.request{''}@.lower:state.failed{':'} {reason}"
 }
 
 const warpTarget = {
