@@ -54,6 +54,7 @@ const createResult = ref<CreateWarpResponse>({
   hardlinkFiles: [],
   failedFiles: []
 })
+const generating = ref<boolean>(false);
 
 interface CardData {
   seq: Ref<number>
@@ -99,11 +100,14 @@ function generateWarpFile(form: FormInstance | undefined) {
         fileName: warpFile.fileName,
         warpTargets: cardsData.map(val => val.target)
       }
+      generating.value=true
       createWarp(warpFile.path, [config]).then(data => {
+        generating.value=false
         createResult.value = data as unknown as CreateWarpResponse
         setMessageConfig(messageDialog, createResult.value)
         messageDialog.value.visible = true
       }, () => {
+        generating.value=false
       })
     }
   })
@@ -191,7 +195,7 @@ function validateFileName(_: any, value: any, callback: any) {
           </el-input>
         </el-col>
         <el-col :span="4">
-          <el-button @click="generateWarpFile(formRef)" type="success" class="warp-button">{{
+          <el-button @click="generateWarpFile(formRef)" type="success" class="warp-button" :loading="generating">{{
               $t('action.generate')
             }}
           </el-button>
