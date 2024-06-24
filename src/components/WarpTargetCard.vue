@@ -152,10 +152,10 @@ function reset(form: FormInstance | undefined) {
         <el-input v-model="warpTarget.filePath" ref="pathInputRef" disabled></el-input>
       </el-form-item>
       <el-form-item :label="$t('data.warpTarget.dataOffset')+':'" prop="dataOffset">
-        <el-input v-model="warpTarget.dataOffset" :disabled="!isEditable" :type="'number'"></el-input>
+        <el-input v-model="warpTarget.dataOffset" :disabled="!isEditable" :type="'number'"><template #append>Byte</template></el-input>
       </el-form-item>
       <el-form-item :label="$t('data.warpTarget.dataSize')+':'" prop="dataSize">
-        <el-input v-model="warpTarget.dataSize" :disabled="!isEditable" :type="'number'"></el-input>
+        <el-input v-model="warpTarget.dataSize" :disabled="!isEditable" :type="'number'"><template #append>Byte</template></el-input>
       </el-form-item>
       <el-form-item v-if="isEditable">
         <el-button @click="selectFile" type="primary"
