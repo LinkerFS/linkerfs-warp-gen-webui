@@ -1,6 +1,6 @@
 <!--
   - linkerfs-warp-gen-webui: warp configuration file generator webui for project linkerfs
-  - Copyright (C) 2024  kaedeair <kaedeair@outlook.com>
+  - Copyright (C) 2024-2025  kaedeair <kaedeair@outlook.com>
   -
   - This file is part of linkerfs-warp-gen-webui.
   -
