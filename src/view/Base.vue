@@ -20,7 +20,7 @@
   -->
 
 <script setup lang="ts">
-import {reactive, ref, Ref, toRefs} from "vue";
+import {provide, reactive, ref, Ref, toRefs} from "vue";
 import WarpTargetCard from "@/components/WarpTargetCard.vue";
 import {Plus} from "@element-plus/icons-vue";
 import {WarpTarget} from "@/common/data/warpFile.ts";
@@ -41,8 +41,9 @@ const {t} = useI18n({useScope: 'global'})
 const warpFile = reactive({path: "", fileName: "", isDir: false})
 const cardsData = reactive(Array<CardData>())
 const pathInputRef = ref<InstanceType<typeof ElInput>>()
-const disableAdd = ref(false)
 const formRef = ref<FormInstance>()
+const currentEditingSeq = ref(0)
+provide("currentEditingSeq", currentEditingSeq)
 const messageDialog = ref<MessageDialogConfig>({
   title: defaultTitle,
   visible: false,
@@ -100,14 +101,14 @@ function generateWarpFile(form: FormInstance | undefined) {
         fileName: warpFile.fileName,
         warpTargets: cardsData.map(val => val.target)
       }
-      generating.value=true
+      generating.value = true
       createWarp(warpFile.path, [config]).then(data => {
-        generating.value=false
+        generating.value = false
         createResult.value = data as unknown as CreateWarpResponse
         setMessageConfig(messageDialog, createResult.value)
         messageDialog.value.visible = true
       }, () => {
-        generating.value=false
+        generating.value = false
       })
     }
   })
@@ -127,23 +128,6 @@ function remove(seq: number) {
   for (let i = seq; i < cardsData.length; i++)
     cardsData[i].seq -= 1
   cardsData.splice(seq - 1, 1)
-}
-
-function save(seq: number) {
-  lockOtherTargets(seq, false)
-}
-
-function edit(seq: number) {
-  lockOtherTargets(seq, true)
-}
-
-function lockOtherTargets(seq: number, isLock: boolean) {
-  for (let i = 0; i < cardsData.length; i++) {
-    if (cardsData[i].seq != seq) {
-      cardsData[i].isDisable = isLock
-    }
-  }
-  disableAdd.value = isLock
 }
 
 function validatePath(_: any, value: any, callback: any) {
@@ -209,13 +193,13 @@ function validateFileName(_: any, value: any, callback: any) {
         effect="light"
         :content="$t('view.base.addTarget')"
         placement="top">
-      <el-button type="primary" :icon="Plus" @click="addTarget" :disabled="disableAdd" circle></el-button>
+      <el-button type="primary" :icon="Plus" @click="addTarget" :disabled="currentEditingSeq!=0" circle></el-button>
     </el-tooltip>
   </div>
   <div>
     <el-space style="padding-top: 20px;" alignment="normal" wrap>
       <div v-for="item in cardsData" :key="cardsData.length" class="card-item">
-        <warp-target-card v-bind="toRefs(item)" @save="save" @edit="edit" @remove="remove">
+        <warp-target-card v-bind="toRefs(item)" @remove="remove">
         </warp-target-card>
       </div>
     </el-space>

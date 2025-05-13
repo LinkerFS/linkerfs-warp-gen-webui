@@ -20,7 +20,7 @@
   -->
 
 <script setup lang="ts">
-import {computed, reactive, Ref, ref, toRef} from "vue";
+import {computed, inject, reactive, Ref, ref, toRef} from "vue";
 import {WarpTarget} from "@/common/data/warpFile.ts";
 import {Check, Close, Delete, Edit} from "@element-plus/icons-vue";
 import {EventBus} from "@/common/utils/mitt.ts";
@@ -38,15 +38,11 @@ const props = defineProps<{
   fileTotalSize: Ref<bigint>
 }>()
 const emit = defineEmits<{
-  edit: [seq: number],
-  save: [seq: number],
   remove: [seq: number]
 }>()
 const seq = toRef(props.seq)
 const warpTarget = toRef(props.target)
 const fileTotalSize = toRef(props.fileTotalSize)
-const isDisable = toRef(props.isDisable)
-const isEditable = ref(false)
 const pathInputRef = ref<InstanceType<typeof ElInput>>()
 const targetNumStr = computed(() => {
   return `${t('component.warpTargetCard.target')} ${seq.value.toString()}`
@@ -64,6 +60,16 @@ const fileCallback = (fileInfo: FileInfo | null) => {
     setInputDisplayTail(pathInputRef)
   }
   EventBus.off('FileSelected', fileCallback)
+}
+
+const currentEditingSeq = inject("currentEditingSeq") as Ref<number, number>
+function isEditable(){
+  return currentEditingSeq.value == seq.value
+}
+function isDisabled(){
+  if (currentEditingSeq.value == 0)
+    return false
+  return !isEditable()
 }
 
 function validateSize(_: any, value: any, callback: any) {
@@ -115,13 +121,11 @@ function selectFile() {
 }
 
 function edit() {
-  isEditable.value = true
-  emit('edit', seq.value)
+  currentEditingSeq.value = seq.value
 }
 
 function save() {
-  isEditable.value = false
-  emit('save', seq.value)
+  currentEditingSeq.value = 0
 }
 
 function submit(form: FormInstance | undefined) {
@@ -152,12 +156,16 @@ function reset(form: FormInstance | undefined) {
         <el-input v-model="warpTarget.filePath" ref="pathInputRef" disabled></el-input>
       </el-form-item>
       <el-form-item :label="$t('data.warpTarget.dataOffset')+':'" prop="dataOffset">
-        <el-input v-model="warpTarget.dataOffset" :disabled="!isEditable" :type="'number'"><template #append>Byte</template></el-input>
+        <el-input v-model="warpTarget.dataOffset" :disabled="!isEditable()" :type="'number'">
+          <template #append>Byte</template>
+        </el-input>
       </el-form-item>
       <el-form-item :label="$t('data.warpTarget.dataSize')+':'" prop="dataSize">
-        <el-input v-model="warpTarget.dataSize" :disabled="!isEditable" :type="'number'"><template #append>Byte</template></el-input>
+        <el-input v-model="warpTarget.dataSize" :disabled="!isEditable()" :type="'number'">
+          <template #append>Byte</template>
+        </el-input>
       </el-form-item>
-      <el-form-item v-if="isEditable">
+      <el-form-item v-if="isEditable()">
         <el-button @click="selectFile" type="primary"
                    style="margin-left: auto;margin-right: auto;width: 50%">
           {{ $t('action.open') }}
@@ -167,36 +175,36 @@ function reset(form: FormInstance | undefined) {
     <template #footer>
       <el-button-group style="display:flex;justify-content: end">
         <el-tooltip
-            v-if="isEditable"
+            v-if="isEditable()"
             effect="light"
             :content="$t('action.save')"
             placement="top"
         >
-          <el-button type="success" :icon="Check" @click="submit(formRef)" :disabled="isDisable"></el-button>
+          <el-button type="success" :icon="Check" @click="submit(formRef)" :disabled="isDisabled()"></el-button>
         </el-tooltip>
         <el-tooltip
-            v-if="isEditable"
+            v-if="isEditable()"
             effect="light"
             :content="$t('action.reset')"
             placement="top"
         >
-          <el-button type="danger" :icon="Close" @click="reset(formRef)" :disabled="isDisable"></el-button>
+          <el-button type="danger" :icon="Close" @click="reset(formRef)" :disabled="isDisabled()"></el-button>
         </el-tooltip>
         <el-tooltip
-            v-if="!isEditable"
+            v-if="!isEditable()"
             effect="light"
             :content="$t('action.edit')"
             placement="top"
         >
-          <el-button type="primary" :icon="Edit" @click="edit" :disabled="isDisable"></el-button>
+          <el-button type="primary" :icon="Edit" @click="edit" :disabled="isDisabled()"></el-button>
         </el-tooltip>
         <el-tooltip
-            v-if="!isEditable"
+            v-if="!isEditable()"
             effect="light"
             :content="$t('action.remove')"
             placement="top"
         >
-          <el-button type="danger" :icon="Delete" @click="emit('remove',seq)" :disabled="isDisable"></el-button>
+          <el-button type="danger" :icon="Delete" @click="emit('remove',seq)" :disabled="isDisabled()"></el-button>
         </el-tooltip>
       </el-button-group>
     </template>
