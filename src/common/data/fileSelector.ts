@@ -20,13 +20,18 @@
  */
 
 import {FilterNodeMethodFunction, TreeNodeData} from "element-plus/es/components/tree/src/tree.type";
-import {FileTree} from "@/common/data/fileTree.ts";
+import {FileInfo, FileTree} from "@/common/data/fileTree.ts";
+import {InjectionKey} from "vue";
+import FileSelector from "@/components/FileSelector.vue";
+import {VueTemplateRef} from "@/common/utils/typeDeduction.ts";
 
 export type FileTreeFilterFunc = (data: FileTree) => boolean
+export type SelectedCallBack = (callBack: FileInfo) => void
 
 export interface FileSelectConfig {
     title: string
-    filter?: FileTreeFilterFunc
+    callBack: (fileInfo: FileInfo) => void
+    filter: FileTreeFilterFunc
 }
 
 export class FileSelectorState {
@@ -67,5 +72,7 @@ const fileNameFilter = (suffixes: Array<string>) => {
     else
         return noFilter
 }
+
+export const fileSelectorSymbol: InjectionKey<VueTemplateRef<typeof FileSelector>> = Symbol('fileSelector')
 
 export const FileTreeFilters = {noFilter, dirFilter, fileNameFilter}

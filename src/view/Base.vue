@@ -20,13 +20,12 @@
   -->
 
 <script setup lang="ts">
-import {provide, reactive, ref, Ref, toRefs} from "vue";
+import {provide, reactive, ref, Ref, toRefs, useTemplateRef} from "vue";
 import WarpTargetCard from "@/components/WarpTargetCard.vue";
 import {Plus} from "@element-plus/icons-vue";
 import {WarpTarget} from "@/common/data/warpFile.ts";
-import {EventBus} from "@/common/utils/mitt.ts";
 import {FileInfo} from "@/common/data/fileTree.ts";
-import {FileTreeFilters} from "@/common/data/fileSelector.ts";
+import {FileTreeFilters, fileSelectorSymbol} from "@/common/data/fileSelector.ts";
 import {setInputDisplayTail} from "@/common/utils/dom.ts";
 import {ElInput, ElMessage, FormInstance, FormRules} from "element-plus";
 import {fileNameRegex} from "@/common/utils/validator.ts";
@@ -36,6 +35,7 @@ import MessageDialog from "@/components/MessageDialog.vue";
 import {IconType, MessageDialogConfig} from "@/common/data/messageDialog.ts";
 import WarpFileCreateResult from "@/components/WarpFileCreateResult.vue";
 import {defaultTitle, setMessageConfig} from "@/common/data/warpCreateResult.ts";
+import FileSelector from "@/components/FileSelector.vue";
 
 const {t} = useI18n({useScope: 'global'})
 const warpFile = reactive({path: "", fileName: "", isDir: false})
@@ -43,7 +43,9 @@ const cardsData = reactive(Array<CardData>())
 const pathInputRef = ref<InstanceType<typeof ElInput>>()
 const formRef = ref<FormInstance>()
 const currentEditingSeq = ref(0)
+const fileSelector = useTemplateRef('fileSelector')
 provide("currentEditingSeq", currentEditingSeq)
+provide(fileSelectorSymbol, fileSelector)
 const messageDialog = ref<MessageDialogConfig>({
   title: defaultTitle,
   visible: false,
@@ -69,20 +71,15 @@ const validateRule = reactive<FormRules<typeof warpFile>>({
   fileName: [{validator: validateFileName, trigger: "blur"}]
 })
 
-const fileCallback = (fileInfo: FileInfo | null) => {
-  if (fileInfo) {
-    warpFile.path = fileInfo.fullPath
-    warpFile.isDir = fileInfo.size === BigInt(0)
-    setInputDisplayTail(pathInputRef)
-  }
-  EventBus.off('FileSelected', fileCallback)
-}
-
 function openFile() {
-  EventBus.on('FileSelected', fileCallback)
-  EventBus.emit('SelectFile', {
+  fileSelector.value?.open({
     title: t('view.base.plzSelectDir'),
-    filter: FileTreeFilters.dirFilter
+    filter: FileTreeFilters.dirFilter,
+    callBack: (fileInfo: FileInfo) => {
+      warpFile.path = fileInfo.fullPath
+      warpFile.isDir = fileInfo.size === BigInt(0)
+      setInputDisplayTail(pathInputRef)
+    }
   })
 }
 
@@ -204,6 +201,7 @@ function validateFileName(_: any, value: any, callback: any) {
       </div>
     </el-space>
   </div>
+  <FileSelector ref="fileSelector"></FileSelector>
   <MessageDialog :config="messageDialog">
     <WarpFileCreateResult v-bind="createResult"></WarpFileCreateResult>
   </MessageDialog>

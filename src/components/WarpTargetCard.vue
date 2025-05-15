@@ -23,11 +23,11 @@
 import {computed, inject, reactive, Ref, ref, toRef} from "vue";
 import {WarpTarget} from "@/common/data/warpFile.ts";
 import {Check, Close, Delete, Edit} from "@element-plus/icons-vue";
-import {EventBus} from "@/common/utils/mitt.ts";
 import {FileInfo} from "@/common/data/fileTree.ts";
 import {ElInput, FormInstance, FormRules} from "element-plus";
 import {setInputDisplayTail} from "@/common/utils/dom.ts";
 import {useI18n} from 'vue-i18n'
+import {fileSelectorSymbol, FileTreeFilters} from "@/common/data/fileSelector.ts"
 
 const {t} = useI18n({useScope: 'global'})
 
@@ -53,20 +53,14 @@ const validateRule = reactive<FormRules<typeof warpTarget>>({
   dataOffset: [{validator: validateDataOffset, trigger: 'blur'}, {validator: validateSize, trigger: 'blur'}],
   dataSize: [{validator: validateDataSize, trigger: 'blur'}, {validator: validateSize, trigger: 'blur'}]
 })
-const fileCallback = (fileInfo: FileInfo | null) => {
-  if (fileInfo) {
-    warpTarget.value.filePath = fileInfo.fullPath
-    fileTotalSize.value = fileInfo.size
-    setInputDisplayTail(pathInputRef)
-  }
-  EventBus.off('FileSelected', fileCallback)
-}
+const currentEditingSeq = inject("currentEditingSeq") as Ref<number>
+const fileSelector = inject(fileSelectorSymbol)
 
-const currentEditingSeq = inject("currentEditingSeq") as Ref<number, number>
-function isEditable(){
+function isEditable() {
   return currentEditingSeq.value == seq.value
 }
-function isDisabled(){
+
+function isDisabled() {
   if (currentEditingSeq.value == 0)
     return false
   return !isEditable()
@@ -116,8 +110,15 @@ function validateDataSize(_: any, value: any, callback: any) {
 }
 
 function selectFile() {
-  EventBus.on('FileSelected', fileCallback)
-  EventBus.emit('SelectFile', {title: t('component.warpTargetCard.titleSelectFile')})
+  fileSelector?.value?.open({
+    title: t('component.warpTargetCard.titleSelectFile'),
+    filter: FileTreeFilters.noFilter,
+    callBack: (fileInfo: FileInfo) => {
+      warpTarget.value.filePath = fileInfo.fullPath
+      fileTotalSize.value = fileInfo.size
+      setInputDisplayTail(pathInputRef)
+    }
+  })
 }
 
 function edit() {

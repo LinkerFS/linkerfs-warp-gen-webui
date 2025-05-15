@@ -20,10 +20,9 @@
   -->
 
 <script setup lang="ts">
-import {FileSelectConfig, FileSelectorState, FileTreeFilters} from "@/common/data/fileSelector.ts";
-import {onMounted, onUnmounted, reactive, ref} from "vue";
+import {FileSelectConfig, FileSelectorState, FileTreeFilters, SelectedCallBack} from "@/common/data/fileSelector.ts";
+import {reactive, useTemplateRef, watch} from "vue";
 import {FileInfo, FileTree} from "@/common/data/fileTree.ts";
-import {EventBus} from "@/common/utils/mitt.ts";
 import {ElTree} from "element-plus";
 import {listDir, ListDirResp} from "@/common/api/file.ts";
 import type Node from 'element-plus/es/components/tree/src/model/node'
@@ -34,16 +33,29 @@ const {t} = useI18n({useScope: 'global'})
 const state = reactive(new FileSelectorState)
 const data = ref<FileTree[]>()
 const treeRef = ref<InstanceType<typeof ElTree>>()
+const treeRef = useTemplateRef('treeRef')
 const treeProps = {
   label: "name",
   children: "children",
   isLeaf: "isEmpty",
 }
+let selectCallback: SelectedCallBack | null = null
+watch(() => state.filterFunc, () => {
+  treeRef.value?.filter(null)
+})
+
+function open(config: FileSelectConfig) {
+
+  state.title = config.title
+  selectCallback = config.callBack
+  state.filterFunc = config.filter
+  state.visible = true
+}
 
 function fileSelected() {
   let current = treeRef.value?.getCurrentNode() as FileInfo
   if (current) {
-    EventBus.emit('FileSelected', {
+    selectCallback?.({
       name: current.name,
       fullPath: current.fullPath,
       size: current['size'] ? current.size : BigInt(0)
@@ -51,8 +63,8 @@ function fileSelected() {
     state.visible = false
   } else {
     ElMessage({
-      message:state.title,
-      type:'error'
+      message: state.title,
+      type: 'error'
     })
   }
 }
@@ -62,7 +74,6 @@ function handleClose(_: () => void) {
 }
 
 function cancel() {
-  EventBus.emit('FileSelected', null)
   state.visible = false
 }
 
@@ -106,22 +117,7 @@ function loadData(node: Node, resolve: (data: FileTree[]) => void, reject: () =>
   }
 }
 
-onMounted(() => {
-  EventBus.on('SelectFile', (config: FileSelectConfig) => {
-    state.title = config.title
-    state.visible = true
-    if (!config.filter)
-      config.filter = FileTreeFilters.noFilter
-    if (state.filterFunc != config.filter) {
-      state.filterFunc = config.filter
-      treeRef.value?.filter(null)
-    }
-  })
-})
-
-onUnmounted(() => {
-  EventBus.off('SelectFile')
-})
+defineExpose({open})
 </script>
 <template>
   <el-dialog v-model="state.visible" :title="state.title" :before-close="handleClose">
