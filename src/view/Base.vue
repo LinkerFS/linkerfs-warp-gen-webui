@@ -27,8 +27,7 @@ import {WarpTarget} from "@/common/data/warpTarget.ts";
 import {FileInfo} from "@/common/data/fileTree.ts";
 import {FileTreeFilters, fileSelectorSymbol} from "@/common/data/fileSelector.ts";
 import {setInputDisplayTail} from "@/common/utils/dom.ts";
-import {ElForm, ElInput, ElMessage, FormInstance, FormRules} from "element-plus";
-import {fileNameRegex} from "@/common/utils/validator.ts";
+import {ElForm, ElInput, ElMessage, FormInstance} from "element-plus";
 import {createWarp, CreateWarpResponse, WarpConfig} from "@/common/api/warp.ts";
 import {useI18n} from 'vue-i18n'
 import MessageDialog from "@/components/MessageDialog.vue";
@@ -37,9 +36,10 @@ import WarpFileCreateResult from "@/components/WarpFileCreateResult.vue";
 import {defaultTitle, setMessageConfig} from "@/common/data/warpCreateResult.ts";
 import FileSelector from "@/components/FileSelector.vue";
 import {CardData} from "@/common/data/warpTargetCard.ts";
+import {getWarpFileSaveInfoValidator, WarpFileSaveInfo} from "@/common/data/warpFile.ts";
 
 const {t} = useI18n({useScope: 'global'})
-const warpFile = reactive({path: "", fileName: "", isDir: false})
+const saveInfo = ref(new WarpFileSaveInfo)
 const cardsData = reactive(Array<CardData>())
 const pathInputRef = useTemplateRef('pathInputRef')
 const formRef = ref<FormInstance>()
@@ -59,18 +59,15 @@ const createResult = ref<CreateWarpResponse>({
   failedFiles: []
 })
 const generating = ref<boolean>(false);
-const validateRule = reactive<FormRules<typeof warpFile>>({
-  path: [{validator: validatePath, trigger: "blur"}],
-  fileName: [{validator: validateFileName, trigger: "blur"}]
-})
+const validateRule = getWarpFileSaveInfoValidator(saveInfo)
 
 function openFile() {
   fileSelector.value?.open({
     title: t('view.base.plzSelectDir'),
     filter: FileTreeFilters.dirFilter,
     callBack: (fileInfo: FileInfo) => {
-      warpFile.path = fileInfo.fullPath
-      warpFile.isDir = fileInfo.size === BigInt(0)
+      saveInfo.value.savePath = fileInfo.fullPath
+      saveInfo.value.savePathIsDir = fileInfo.size === BigInt(0)
       setInputDisplayTail(pathInputRef)
     }
   })
@@ -88,11 +85,11 @@ function generateWarpFile(form: FormInstance | undefined) {
         return
       }
       let config: WarpConfig = {
-        fileName: warpFile.fileName,
+        fileName: saveInfo.value.warpFileName,
         warpTargets: cardsData.map(val => val.warpTarget)
       }
       generating.value = true
-      createWarp(warpFile.path, [config]).then(data => {
+      createWarp(saveInfo.value.savePath, [config]).then(data => {
         generating.value = false
         createResult.value = data as unknown as CreateWarpResponse
         setMessageConfig(messageDialog, createResult.value)
@@ -120,34 +117,15 @@ function remove(seq: number) {
   cardsData.splice(seq - 1, 1)
 }
 
-function validatePath(_: any, value: any, callback: any) {
-  if (value === '') {
-    callback(new Error(t('view.base.requireSavePath')))
-  } else if (!warpFile.isDir) {
-    callback(new Error(t('view.base.savePathIsDir')))
-  } else {
-    callback()
-  }
-}
-
-function validateFileName(_: any, value: any, callback: any) {
-  if (value === '') {
-    callback(new Error(t('view.base.fileName')))
-  } else if (!value.match(fileNameRegex)) {
-    callback(new Error(t('view.base.invalidFileName')))
-  } else {
-    callback()
-  }
-}
 </script>
 <template>
-  <el-form ref="formRef" :model="warpFile" :rules="validateRule" label-position="right" label-width="auto">
+  <el-form ref="formRef" :model="saveInfo" :rules="validateRule" label-position="right" label-width="auto">
     <el-row class="warp-row" justify="start" align="middle">
-      <el-form-item :label="$t('view.base.savePath') + ':'" class="warp-form-item" prop="path">
+      <el-form-item :label="$t('view.base.savePath') + ':'" class="warp-form-item" prop="savePath">
         <el-col :span="12">
           <el-input
               class="warp-input"
-              v-model="warpFile.path"
+              v-model="saveInfo.savePath"
               ref="pathInputRef"
               disabled
               :placeholder="$t('view.base.savePathPH')">
@@ -159,11 +137,11 @@ function validateFileName(_: any, value: any, callback: any) {
       </el-form-item>
     </el-row>
     <el-row class="warp-row" justify="start" align="middle">
-      <el-form-item :label="$t('view.base.fileName') + ':'" class="warp-form-item" prop="fileName">
+      <el-form-item :label="$t('view.base.fileName') + ':'" class="warp-form-item" prop="warpFileName">
         <el-col :span="12">
           <el-input
               class="warp-input"
-              v-model="warpFile.fileName"
+              v-model="saveInfo.warpFileName"
               clearable
               :placeholder="$t('view.base.fileNamePH')">
           </el-input>
