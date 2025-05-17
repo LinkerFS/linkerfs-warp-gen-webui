@@ -43,7 +43,7 @@ const emit = defineEmits<{
 const seq = toRef(props.seq)
 const warpTarget = toRef(props.target)
 const fileTotalSize = toRef(props.fileTotalSize)
-const pathInputRef = ref<InstanceType<typeof ElInput>>()
+const pathInputRef = useTemplateRef('pathInputRef')
 const targetNumStr = computed(() => {
   return `${t('component.warpTargetCard.target')} ${seq.value.toString()}`
 })

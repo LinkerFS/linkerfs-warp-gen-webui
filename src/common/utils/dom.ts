@@ -19,13 +19,14 @@
  * along with linkerfs-warp-gen-webui. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import {nextTick, Ref} from "vue";
+import {nextTick} from "vue";
 import {ElInput} from "element-plus";
+import {VueTemplateRef} from "@/common/utils/typeDeduction.ts";
 
-export const setInputDisplayTail = (item: Ref<InstanceType<typeof ElInput> | undefined>) => {
-    nextTick().then(()=>{
-        if (item && item.value?.input) {
-            item.value.input.scrollLeft = item.value.input.scrollWidth
+export const setInputDisplayTail = (item: VueTemplateRef<typeof ElInput>) => {
+    nextTick().then(() => {
+        if (item.value?.input) {
+            item.value.input.scrollLeft = item.value.input.scrollWidth;
         }
     })
 }

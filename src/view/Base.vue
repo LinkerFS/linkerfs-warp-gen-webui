@@ -40,7 +40,7 @@ import FileSelector from "@/components/FileSelector.vue";
 const {t} = useI18n({useScope: 'global'})
 const warpFile = reactive({path: "", fileName: "", isDir: false})
 const cardsData = reactive(Array<CardData>())
-const pathInputRef = ref<InstanceType<typeof ElInput>>()
+const pathInputRef = useTemplateRef('pathInputRef')
 const formRef = ref<FormInstance>()
 const currentEditingSeq = ref(0)
 const fileSelector = useTemplateRef('fileSelector')
