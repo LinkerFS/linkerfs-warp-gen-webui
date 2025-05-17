@@ -19,8 +19,43 @@
  * along with linkerfs-warp-gen-webui. If not, see <https://www.gnu.org/licenses/>.
  */
 
-export class WarpTarget {
-    filePath: string = ""
-    dataOffset: string = "0"
-    dataSize: string = "0"
+import {reactive, Ref} from "vue";
+import {fileNameRegex} from "@/common/utils/validator.ts";
+import {FormRules} from "element-plus";
+import {i18n} from "@/common/i18n";
+
+const t = i18n.global.t
+
+export class WarpFileSaveInfo {
+    savePath: string = ""
+    warpFileName: string = ""
+    savePathIsDir: boolean = false
+}
+
+export function getWarpFileSaveInfoValidator(saveInfo: Ref<WarpFileSaveInfo>) {
+
+    function validateSavePath(_: any, value: any, callback: any) {
+        if (value === '') {
+            callback(new Error(t('view.base.requireSavePath')))
+        } else if (!saveInfo.value.savePathIsDir) {
+            callback(new Error(t('view.base.savePathIsDir')))
+        } else {
+            callback()
+        }
+    }
+
+    function validateFileName(_: any, value: any, callback: any) {
+        if (value === '') {
+            callback(new Error(t('view.base.fileName')))
+        } else if (!value.match(fileNameRegex)) {
+            callback(new Error(t('view.base.invalidFileName')))
+        } else {
+            callback()
+        }
+    }
+
+    return reactive<FormRules<WarpFileSaveInfo>>({
+        savePath: [{validator: validateSavePath, trigger: "blur"}],
+        warpFileName: [{validator: validateFileName, trigger: "blur"}]
+    })
 }
