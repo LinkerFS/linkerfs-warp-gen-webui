@@ -20,14 +20,14 @@
   -->
 
 <script setup lang="ts">
-import {provide, reactive, ref, Ref, toRefs, useTemplateRef} from "vue";
+import {provide, reactive, ref, useTemplateRef} from "vue";
 import WarpTargetCard from "@/components/WarpTargetCard.vue";
 import {Plus} from "@element-plus/icons-vue";
-import {WarpTarget} from "@/common/data/warpFile.ts";
+import {WarpTarget} from "@/common/data/warpTarget.ts";
 import {FileInfo} from "@/common/data/fileTree.ts";
 import {FileTreeFilters, fileSelectorSymbol} from "@/common/data/fileSelector.ts";
 import {setInputDisplayTail} from "@/common/utils/dom.ts";
-import {ElInput, ElMessage, FormInstance, FormRules} from "element-plus";
+import {ElForm, ElInput, ElMessage, FormInstance, FormRules} from "element-plus";
 import {fileNameRegex} from "@/common/utils/validator.ts";
 import {createWarp, CreateWarpResponse, WarpConfig} from "@/common/api/warp.ts";
 import {useI18n} from 'vue-i18n'
@@ -36,6 +36,7 @@ import {IconType, MessageDialogConfig} from "@/common/data/messageDialog.ts";
 import WarpFileCreateResult from "@/components/WarpFileCreateResult.vue";
 import {defaultTitle, setMessageConfig} from "@/common/data/warpCreateResult.ts";
 import FileSelector from "@/components/FileSelector.vue";
+import {CardData} from "@/common/data/warpTargetCard.ts";
 
 const {t} = useI18n({useScope: 'global'})
 const warpFile = reactive({path: "", fileName: "", isDir: false})
@@ -58,14 +59,6 @@ const createResult = ref<CreateWarpResponse>({
   failedFiles: []
 })
 const generating = ref<boolean>(false);
-
-interface CardData {
-  seq: Ref<number>
-  target: Ref<WarpTarget>
-  isDisable: Ref<boolean>
-  fileTotalSize: Ref<bigint>
-}
-
 const validateRule = reactive<FormRules<typeof warpFile>>({
   path: [{validator: validatePath, trigger: "blur"}],
   fileName: [{validator: validateFileName, trigger: "blur"}]
@@ -96,7 +89,7 @@ function generateWarpFile(form: FormInstance | undefined) {
       }
       let config: WarpConfig = {
         fileName: warpFile.fileName,
-        warpTargets: cardsData.map(val => val.target)
+        warpTargets: cardsData.map(val => val.warpTarget)
       }
       generating.value = true
       createWarp(warpFile.path, [config]).then(data => {
@@ -114,11 +107,11 @@ function generateWarpFile(form: FormInstance | undefined) {
 function addTarget() {
   let cardData = {
     seq: cardsData.length + 1,
-    target: new WarpTarget,
+    warpTarget: new WarpTarget,
     isDisable: false,
     fileTotalSize: BigInt(0)
   }
-  cardsData.push(reactive(cardData))
+  cardsData.push(cardData)
 }
 
 function remove(seq: number) {
@@ -195,8 +188,8 @@ function validateFileName(_: any, value: any, callback: any) {
   </div>
   <div>
     <el-space style="padding-top: 20px;" alignment="normal" wrap>
-      <div v-for="item in cardsData" :key="cardsData.length" class="card-item">
-        <warp-target-card v-bind="toRefs(item)" @remove="remove">
+      <div v-for="idx in cardsData.keys()" :key="idx" class="card-item">
+        <warp-target-card v-model="cardsData[idx]" @remove="remove">
         </warp-target-card>
       </div>
     </el-space>

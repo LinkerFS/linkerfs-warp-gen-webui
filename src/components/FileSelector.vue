@@ -21,7 +21,7 @@
 
 <script setup lang="ts">
 import {FileSelectConfig, FileSelectorState, FileTreeFilters, SelectedCallBack} from "@/common/data/fileSelector.ts";
-import {reactive, useTemplateRef, watch} from "vue";
+import {reactive, ref, useTemplateRef, watch} from "vue";
 import {FileInfo, FileTree} from "@/common/data/fileTree.ts";
 import {ElTree} from "element-plus";
 import {listDir, ListDirResp} from "@/common/api/file.ts";
@@ -32,7 +32,6 @@ import {useI18n} from 'vue-i18n'
 const {t} = useI18n({useScope: 'global'})
 const state = reactive(new FileSelectorState)
 const data = ref<FileTree[]>()
-const treeRef = ref<InstanceType<typeof ElTree>>()
 const treeRef = useTemplateRef('treeRef')
 const treeProps = {
   label: "name",

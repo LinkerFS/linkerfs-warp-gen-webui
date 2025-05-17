@@ -20,44 +20,32 @@
   -->
 
 <script setup lang="ts">
-import {computed, inject, reactive, Ref, ref, toRef} from "vue";
-import {WarpTarget} from "@/common/data/warpFile.ts";
+import {computed, inject, ModelRef, Ref, ref, useTemplateRef} from "vue";
+import {getWarpTargetValidator} from "@/common/data/warpTarget.ts";
 import {Check, Close, Delete, Edit} from "@element-plus/icons-vue";
 import {FileInfo} from "@/common/data/fileTree.ts";
-import {ElInput, FormInstance, FormRules} from "element-plus";
+import {ElInput, FormInstance} from "element-plus";
 import {setInputDisplayTail} from "@/common/utils/dom.ts";
 import {useI18n} from 'vue-i18n'
 import {fileSelectorSymbol, FileTreeFilters} from "@/common/data/fileSelector.ts"
+import {CardData} from "@/common/data/warpTargetCard.ts";
 
 const {t} = useI18n({useScope: 'global'})
-
-const props = defineProps<{
-  target: Ref<WarpTarget>,
-  seq: Ref<number>,
-  isDisable: Ref<boolean>,
-  fileTotalSize: Ref<bigint>
-}>()
+const cardData = defineModel<CardData>() as ModelRef<CardData>
 const emit = defineEmits<{
   remove: [seq: number]
 }>()
-const seq = toRef(props.seq)
-const warpTarget = toRef(props.target)
-const fileTotalSize = toRef(props.fileTotalSize)
 const pathInputRef = useTemplateRef('pathInputRef')
 const targetNumStr = computed(() => {
-  return `${t('component.warpTargetCard.target')} ${seq.value.toString()}`
+  return `${t('component.warpTargetCard.target')} ${cardData.value.seq.toString()}`
 })
 const formRef = ref<FormInstance>()
-const validateRule = reactive<FormRules<typeof warpTarget>>({
-  filePath: [{validator: validateFilePath, trigger: 'blur'}],
-  dataOffset: [{validator: validateDataOffset, trigger: 'blur'}, {validator: validateSize, trigger: 'blur'}],
-  dataSize: [{validator: validateDataSize, trigger: 'blur'}, {validator: validateSize, trigger: 'blur'}]
-})
+const validateRule = getWarpTargetValidator(cardData)
 const currentEditingSeq = inject("currentEditingSeq") as Ref<number>
 const fileSelector = inject(fileSelectorSymbol)
 
 function isEditable() {
-  return currentEditingSeq.value == seq.value
+  return currentEditingSeq.value == cardData.value.seq
 }
 
 function isDisabled() {
@@ -66,63 +54,20 @@ function isDisabled() {
   return !isEditable()
 }
 
-function validateSize(_: any, value: any, callback: any) {
-  if (BigInt(value) < BigInt(0)) {
-    callback(new Error(t('component.warpTargetCard.valueNegative')))
-  } else if (BigInt(value) > BigInt("9223372036854775807")) {
-    callback(new Error(t('component.warpTargetCard.valueMoreThanInt64')))
-  }
-  callback()
-}
-
-function validateFilePath(_e: any, value: any, callback: any) {
-  if (value === '') {
-    callback(new Error(t('component.warpTargetCard.requireFilePath')))
-  } else if (fileTotalSize.value === BigInt(0)) {
-    callback(new Error(t('component.warpTargetCard.mustBeFile')))
-  } else {
-    callback()
-  }
-}
-
-function validateDataOffset(_: any, value: any, callback: any) {
-  if (value === '') {
-    callback(new Error(t('component.warpTargetCard.requireDataOffset')))
-  } else {
-    if (BigInt(warpTarget.value.dataSize) > 0) {
-      if (!formRef.value) return
-      formRef.value.validateField('dataSize')
-    }
-    callback()
-  }
-}
-
-function validateDataSize(_: any, value: any, callback: any) {
-  if (value === '') {
-    callback(new Error(t('component.warpTargetCard.requireDataSize')))
-  } else if (BigInt(warpTarget.value.dataSize) === BigInt(0)) {
-    callback(new Error(t('component.warpTargetCard.dataSizePositive')))
-  } else if (BigInt(warpTarget.value.dataOffset) + BigInt(warpTarget.value.dataSize) > fileTotalSize.value) {
-    callback(new Error(t('component.warpTargetCard.dataOutOfRange')))
-  } else {
-    callback()
-  }
-}
-
 function selectFile() {
   fileSelector?.value?.open({
     title: t('component.warpTargetCard.titleSelectFile'),
     filter: FileTreeFilters.noFilter,
     callBack: (fileInfo: FileInfo) => {
-      warpTarget.value.filePath = fileInfo.fullPath
-      fileTotalSize.value = fileInfo.size
+      cardData.value.warpTarget.filePath = fileInfo.fullPath
+      cardData.value.fileTotalSize = fileInfo.size
       setInputDisplayTail(pathInputRef)
     }
   })
 }
 
 function edit() {
-  currentEditingSeq.value = seq.value
+  currentEditingSeq.value = cardData.value.seq
 }
 
 function save() {
@@ -151,18 +96,19 @@ function reset(form: FormInstance | undefined) {
         <span>{{ targetNumStr }}</span>
       </div>
     </template>
-    <el-form ref="formRef" :model="warpTarget" :rules="validateRule" label-position="right" label-width="auto"
+    <el-form ref="formRef" :model="cardData.warpTarget" :rules="validateRule" label-position="right" label-width="auto"
              style="max-width: 400px">
       <el-form-item :label="$t('data.warpTarget.filePath')+':'" prop="filePath">
-        <el-input v-model="warpTarget.filePath" ref="pathInputRef" disabled></el-input>
+        <el-input v-model="cardData.warpTarget.filePath" ref="pathInputRef" disabled></el-input>
       </el-form-item>
       <el-form-item :label="$t('data.warpTarget.dataOffset')+':'" prop="dataOffset">
-        <el-input v-model="warpTarget.dataOffset" :disabled="!isEditable()" :type="'number'">
+        <el-input v-model="cardData.warpTarget.dataOffset" :disabled="!isEditable()" :type="'number'"
+                  @blur="formRef?.validateField('dataSize')">
           <template #append>Byte</template>
         </el-input>
       </el-form-item>
       <el-form-item :label="$t('data.warpTarget.dataSize')+':'" prop="dataSize">
-        <el-input v-model="warpTarget.dataSize" :disabled="!isEditable()" :type="'number'">
+        <el-input v-model="cardData.warpTarget.dataSize" :disabled="!isEditable()" :type="'number'">
           <template #append>Byte</template>
         </el-input>
       </el-form-item>
@@ -205,7 +151,8 @@ function reset(form: FormInstance | undefined) {
             :content="$t('action.remove')"
             placement="top"
         >
-          <el-button type="danger" :icon="Delete" @click="emit('remove',seq)" :disabled="isDisabled()"></el-button>
+          <el-button type="danger" :icon="Delete" @click="emit('remove',cardData.seq)"
+                     :disabled="isDisabled()"></el-button>
         </el-tooltip>
       </el-button-group>
     </template>

@@ -19,29 +19,11 @@
  * along with linkerfs-warp-gen-webui. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import Axios from "@/common/utils/axios.ts";
 import {WarpTarget} from "@/common/data/warpTarget.ts";
 
-export const createWarp = async (savePath: string, configs: WarpConfig[]) => {
-    let data: CreateWarpReq = {
-        savePath: savePath,
-        warpConfigs: configs
-    }
-    return Axios.post("/warp/create", data)
-}
-
-export interface WarpConfig {
-    fileName: string
-    warpTargets: WarpTarget[]
-}
-
-interface CreateWarpReq {
-    savePath: string
-    warpConfigs: WarpConfig[]
-}
-
-export interface CreateWarpResponse {
-    warpFiles: string[]
-    hardlinkFiles: string[]
-    failedFiles: string[]
+export interface CardData{
+    seq: number
+    warpTarget: WarpTarget
+    isDisable: boolean
+    fileTotalSize: bigint
 }
