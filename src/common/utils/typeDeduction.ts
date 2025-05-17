@@ -21,5 +21,4 @@
 
 import {ShallowRef} from 'vue';
 
-export type VueComponentInstance<T extends abstract new (...args: any) => any> = InstanceType<T>
-export type VueTemplateRef<T extends abstract new (...args: any) => any> = Readonly<ShallowRef<VueComponentInstance<T> | null>>
+export type VueTemplateRef<T extends abstract new (...args: any) => any> = Readonly<ShallowRef<InstanceType<T> | null>>
