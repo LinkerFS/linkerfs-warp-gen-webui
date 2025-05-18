@@ -20,11 +20,12 @@
   -->
 
 <script lang="ts" setup>
-import {ref} from 'vue'
+import {onMounted, ref} from 'vue'
 import {router} from "@/router";
+import {Feature, getServerFeature} from "@/common/api/feature.ts";
 
 const activeIndex = ref('base')
-
+const serverFeature = ref<Feature>(0)
 const handleSelect = (_: string, keyPath: string[]) => {
   let route: string = ''
   keyPath.forEach(key => {
@@ -32,6 +33,11 @@ const handleSelect = (_: string, keyPath: string[]) => {
   })
   router.push(route)
 }
+onMounted(() => {
+  getServerFeature().then((response) => {
+    serverFeature.value = response as unknown as number
+  })
+})
 </script>
 <template>
   <el-menu
