@@ -32,6 +32,9 @@ const routes = [
     {
         path: '/base', component: load('Base')
     },
+    {
+        path: '/udf', component: load('UDF')
+    },
 ]
 const router = createRouter({
     history: createWebHistory('/webui'),

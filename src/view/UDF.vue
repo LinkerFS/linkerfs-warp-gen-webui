@@ -20,34 +20,13 @@
   -->
 
 <script lang="ts" setup>
-import {onMounted, ref} from 'vue'
-import {router} from "@/router";
-import {Feature, getServerFeature} from "@/common/api/feature.ts";
 
-const activeIndex = ref('base')
-const serverFeature = ref<Feature>(0)
-const handleSelect = (_: string, keyPath: string[]) => {
-  let route: string = ''
-  keyPath.forEach(key => {
-    route += `/${key}`
-  })
-  router.push(route)
-}
-onMounted(() => {
-  getServerFeature().then((response) => {
-    serverFeature.value = response as unknown as number
-  })
-})
 </script>
+
 <template>
-  <el-menu
-      :default-active="activeIndex"
-      class="menu"
-      mode="vertical"
-      @select="handleSelect"
-      router:true
-  >
-    <el-menu-item index="base">{{ $t('view.menu.base') }}</el-menu-item>
-    <el-menu-item v-if="serverFeature&Feature.UDF" index="udf">{{ $t('view.menu.udfFile') }}</el-menu-item>
-  </el-menu>
+
 </template>
+
+<style scoped>
+
+</style>

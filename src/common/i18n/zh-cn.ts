@@ -89,7 +89,8 @@ const baseView = {
 }
 
 const menu = {
-    base: '基础'
+    base: '基础',
+    udfFile: 'UDF文件'
 }
 
 const fileSelectorComp = {

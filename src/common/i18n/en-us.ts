@@ -89,7 +89,8 @@ const baseView = {
 }
 
 const menu = {
-    base: 'Base'
+    base: 'Base',
+    udfFile: 'UDF File'
 }
 
 const fileSelectorComp = {
