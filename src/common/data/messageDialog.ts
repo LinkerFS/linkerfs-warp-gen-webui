@@ -23,7 +23,7 @@ import {i18n} from '@/common/i18n'
 
 const t = i18n.global.t
 
-export interface MessageDialogConfig {
+export interface MessageDialogState {
     title: string
     visible: boolean
     icon: IconType

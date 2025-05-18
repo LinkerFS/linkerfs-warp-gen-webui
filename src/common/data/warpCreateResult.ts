@@ -21,12 +21,12 @@
 
 import {Ref} from "vue";
 import {CreateWarpResponse} from "@/common/api/warp.ts";
-import {IconType, MessageDialogConfig} from "@/common/data/messageDialog.ts";
+import {IconType, MessageDialogState} from "@/common/data/messageDialog.ts";
 import {i18n} from '@/common/i18n'
 
 const t = i18n.global.t
 export const defaultTitle = t('data.warpCreateResult.title')
-export const setMessageConfig = (config: Ref<MessageDialogConfig>, result: CreateWarpResponse) => {
+export const setMessageConfig = (config: Ref<MessageDialogState>, result: CreateWarpResponse) => {
     if (result.failedFiles.length > 0) {
         if (result.warpFiles.length > 0 || result.hardlinkFiles.length > 0) {
             config.value.icon = IconType.WARNING

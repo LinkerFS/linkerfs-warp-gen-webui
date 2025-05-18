@@ -20,30 +20,39 @@
   -->
 
 <script setup lang="ts">
-import {getIconTitle, MessageDialogState} from "@/common/data/messageDialog.ts";
-import {computed, toRefs} from "vue";
+import MessageDialog from "@/components/MessageDialog.vue";
+import WarpFileCreateResult from "@/components/WarpFileCreateResult.vue";
+import {ref} from "vue";
+import {IconType, MessageDialogState} from "@/common/data/messageDialog.ts";
+import {defaultTitle, setMessageConfig} from "@/common/data/warpCreateResult.ts";
+import {CreateWarpResponse} from "@/common/api/warp.ts";
 
-const prop = defineProps<{ state: MessageDialogState }>();
-const state = toRefs(prop.state)
-const resultTitle = computed(() => getIconTitle(state.icon.value))
+const messageDialogsState = ref<MessageDialogState>({
+  title: defaultTitle,
+  visible: false,
+  icon: IconType.SUCCESS,
+  description: ""
+})
+const createResult = ref<CreateWarpResponse>({
+  warpFiles: [],
+  hardlinkFiles: [],
+  failedFiles: []
+})
+
+function open(createWarpResponse: CreateWarpResponse) {
+  createResult.value = createWarpResponse
+  setMessageConfig(messageDialogsState, createResult.value)
+  messageDialogsState.value.visible = true
+}
+
+defineExpose({open})
 </script>
 <template>
-  <el-dialog v-model="state.visible.value" :title="state.title.value" :close-on-click-modal=false>
-    <el-row justify="start" align="middle" :gutter="25">
-      <el-col :span="2" style="max-width: min-content">
-        <el-result :icon="state.icon.value" :title="resultTitle" :sub-title="state.description.value"
-                   style="max-width: fit-content">
-        </el-result>
-      </el-col>
-      <el-col :span="12" style="overflow: auto;max-height: 60vh;">
-        <slot></slot>
-      </el-col>
-    </el-row>
-    <el-row :justify="'end'" :align="'middle'" style="padding-top: 25px">
-      <el-button type="primary" @click="state.visible.value=false">{{ $t('action.confirm') }}</el-button>
-    </el-row>
-  </el-dialog>
+  <MessageDialog :state="messageDialogsState">
+    <WarpFileCreateResult v-bind="createResult"></WarpFileCreateResult>
+  </MessageDialog>
 </template>
+
 <style scoped>
 
 </style>

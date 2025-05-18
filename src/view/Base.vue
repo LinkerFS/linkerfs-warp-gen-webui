@@ -30,13 +30,10 @@ import {setInputDisplayTail} from "@/common/utils/dom.ts";
 import {ElForm, ElInput, ElMessage, FormInstance} from "element-plus";
 import {createWarp, CreateWarpResponse, WarpConfig} from "@/common/api/warp.ts";
 import {useI18n} from 'vue-i18n'
-import MessageDialog from "@/components/MessageDialog.vue";
-import {IconType, MessageDialogConfig} from "@/common/data/messageDialog.ts";
-import WarpFileCreateResult from "@/components/WarpFileCreateResult.vue";
-import {defaultTitle, setMessageConfig} from "@/common/data/warpCreateResult.ts";
 import FileSelector from "@/components/FileSelector.vue";
 import {CardData} from "@/common/data/warpTargetCard.ts";
 import {getWarpFileSaveInfoValidator, WarpFileSaveInfo} from "@/common/data/warpFile.ts";
+import CreateWarpResultDialog from "@/components/CreateWarpResultDialog.vue";
 
 const {t} = useI18n({useScope: 'global'})
 const saveInfo = ref(new WarpFileSaveInfo)
@@ -47,17 +44,7 @@ const currentEditingSeq = ref(0)
 const fileSelector = useTemplateRef('fileSelector')
 provide("currentEditingSeq", currentEditingSeq)
 provide(fileSelectorSymbol, fileSelector)
-const messageDialog = ref<MessageDialogConfig>({
-  title: defaultTitle,
-  visible: false,
-  icon: IconType.SUCCESS,
-  description: ""
-})
-const createResult = ref<CreateWarpResponse>({
-  warpFiles: [],
-  hardlinkFiles: [],
-  failedFiles: []
-})
+const resultDialogRef = useTemplateRef('resultDialog')
 const generating = ref<boolean>(false);
 const validateRule = getWarpFileSaveInfoValidator(saveInfo)
 
@@ -91,9 +78,7 @@ function generateWarpFile(form: FormInstance | undefined) {
       generating.value = true
       createWarp(saveInfo.value.savePath, [config]).then(data => {
         generating.value = false
-        createResult.value = data as unknown as CreateWarpResponse
-        setMessageConfig(messageDialog, createResult.value)
-        messageDialog.value.visible = true
+        resultDialogRef.value?.open(data as unknown as CreateWarpResponse)
       }, () => {
         generating.value = false
       })
@@ -173,9 +158,7 @@ function remove(seq: number) {
     </el-space>
   </div>
   <FileSelector ref="fileSelector"></FileSelector>
-  <MessageDialog :config="messageDialog">
-    <WarpFileCreateResult v-bind="createResult"></WarpFileCreateResult>
-  </MessageDialog>
+  <CreateWarpResultDialog ref="resultDialog"></CreateWarpResultDialog>
 </template>
 <style scoped>
 .warp-button {
