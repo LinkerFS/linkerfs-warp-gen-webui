@@ -161,22 +161,5 @@ function remove(seq: number) {
   <CreateWarpResultDialog ref="resultDialog"></CreateWarpResultDialog>
 </template>
 <style scoped>
-.warp-button {
-  width: 90px;
-  margin-left: 25px;
-}
-
-.warp-input {
-  max-width: 500px;
-}
-
-.warp-row {
-  padding: 10px;
-  max-width: 1200px;
-}
-
-.warp-form-item {
-  width: 95%;
-  max-width: 900px;
-}
+@import "@/assets/css/warp.css";
 </style>
