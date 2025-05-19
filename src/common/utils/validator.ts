@@ -19,4 +19,4 @@
  * along with linkerfs-warp-gen-webui. If not, see <https://www.gnu.org/licenses/>.
  */
 
-export const fileNameRegex = RegExp(/^[^(\\^?*|"<>:\/)]{1,256}$/,'g')
+export const fileNameRegex = RegExp(/^[^(\\^?*|"<>:\/)]{1,256}$/, 'g')

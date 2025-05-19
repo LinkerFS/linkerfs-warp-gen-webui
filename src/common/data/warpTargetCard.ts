@@ -21,7 +21,7 @@
 
 import {WarpTarget} from "@/common/data/warpTarget.ts";
 
-export interface CardData{
+export interface CardData {
     seq: number
     warpTarget: WarpTarget
     isDisable: boolean

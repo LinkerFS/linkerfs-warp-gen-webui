@@ -26,14 +26,15 @@ export const listDir = async (path: string) => {
         dirPath: path
     })
 }
-export interface ListDirResp{
+
+export interface ListDirResp {
     dirPath: string
-    fileList:{
-        name:string
-        size:string
+    fileList: {
+        name: string
+        size: string
     }[]
-    dirList:{
-        name:string
-        isEmpty:boolean
+    dirList: {
+        name: string
+        isEmpty: boolean
     }[]
 }
