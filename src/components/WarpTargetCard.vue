@@ -60,7 +60,7 @@ function selectFile() {
     filter: FileTreeFilters.noFilter,
     callBack: (fileInfo: FileInfo) => {
       cardData.value.warpTarget.filePath = fileInfo.fullPath
-      cardData.value.fileTotalSize = fileInfo.size
+      cardData.value.fileTotalSize = fileInfo.size === null ? BigInt(0) : fileInfo.size
       setInputDisplayTail(pathInputRef)
     }
   })

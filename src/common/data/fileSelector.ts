@@ -20,12 +20,12 @@
  */
 
 import {FilterNodeMethodFunction, TreeNodeData} from "element-plus/es/components/tree/src/tree.type";
-import {FileInfo, FileTree} from "@/common/data/fileTree.ts";
+import {FileInfo, LazyFileTree} from "@/common/data/fileTree.ts";
 import {InjectionKey} from "vue";
 import FileSelector from "@/components/FileSelector.vue";
 import {VueTemplateRef} from "@/common/utils/typeDeduction.ts";
 
-export type FileTreeFilterFunc = (data: FileTree) => boolean
+export type FileTreeFilterFunc = (data: LazyFileTree) => boolean
 export type SelectedCallBack = (callBack: FileInfo) => void
 
 export interface FileSelectConfig {
@@ -45,23 +45,23 @@ export class FileSelectorState {
         this.visible = false
         this.filterFunc = noFilter
         this.filter = (_, nodeData: TreeNodeData, __) => {
-            return this.filterFunc(nodeData as FileTree)
+            return this.filterFunc(nodeData as LazyFileTree)
         }
     }
 }
 
-const noFilter = (_: FileTree) => true
+const noFilter = (_: LazyFileTree) => true
 
-const dirFilter = (data: FileTree) => {
-    return !data.hasOwnProperty('size')
+const dirFilter = (data: LazyFileTree) => {
+    return data.size === null
 }
 
 const fileNameFilter = (suffixes: Array<string>) => {
     if (suffixes.length > 0)
-        return (data: FileTree) => {
+        return (data: LazyFileTree) => {
             let result = false;
             // reserve directory
-            if (!data.hasOwnProperty('size'))
+            if (data.size === null && data.children !== null)
                 return true
             suffixes.forEach((val) => {
                 if (data.name.endsWith(val))

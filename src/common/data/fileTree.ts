@@ -19,27 +19,27 @@
  * along with linkerfs-warp-gen-webui. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import {TreeNodeData} from "element-plus/es/components/tree/src/tree.type";
-
-export class FileTree implements TreeNodeData {
+export interface LazyFileTree {
     name: string
     fullPath: string
-    children?: FileTree[]
-    isEmpty?: boolean = false
-    size?: bigint
-
-    constructor(name: string, fullPath: string) {
-        this.name = name;
-        this.fullPath = fullPath
-        this.children = []
-    }
+    children: LazyFileTree[] | null
+    size: bigint | null
 }
 
-export class FileInfo extends FileTree {
-    size: bigint
+export interface FileTree {
+    name: string
+    children: FileTree[] | null
+    size: string | null
+}
 
-    constructor(name: string, fullPath: string, size: bigint) {
-        super(name, fullPath)
+export class FileInfo {
+    name: string
+    size: bigint | null
+    fullPath: string
+
+    constructor(name: string, fullPath: string, size: bigint | null) {
+        this.name = name;
+        this.fullPath = fullPath
         this.size = size
     }
 }

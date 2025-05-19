@@ -22,7 +22,7 @@
 <script setup lang="ts">
 import {FileSelectConfig, FileSelectorState, FileTreeFilters, SelectedCallBack} from "@/common/data/fileSelector.ts";
 import {reactive, ref, useTemplateRef, watch} from "vue";
-import {FileInfo, FileTree} from "@/common/data/fileTree.ts";
+import {LazyFileTree} from "@/common/data/fileTree.ts";
 import {ElTree} from "element-plus";
 import {listDir, ListDirResp} from "@/common/api/file.ts";
 import type Node from 'element-plus/es/components/tree/src/model/node'
@@ -31,12 +31,14 @@ import {useI18n} from 'vue-i18n'
 
 const {t} = useI18n({useScope: 'global'})
 const state = reactive(new FileSelectorState)
-const data = ref<FileTree[]>()
+const data = ref<LazyFileTree[]>()
 const treeRef = useTemplateRef('treeRef')
 const treeProps = {
   label: "name",
   children: "children",
-  isLeaf: "isEmpty",
+  isLeaf: (data: any, _: any) => {
+    return data?.children === null
+  }
 }
 let selectCallback: SelectedCallBack | null = null
 watch(() => state.filterFunc, () => {
@@ -52,12 +54,12 @@ function open(config: FileSelectConfig) {
 }
 
 function fileSelected() {
-  let current = treeRef.value?.getCurrentNode() as FileInfo
+  let current = treeRef.value?.getCurrentNode() as LazyFileTree
   if (current) {
     selectCallback?.({
       name: current.name,
       fullPath: current.fullPath,
-      size: current['size'] ? current.size : BigInt(0)
+      size: current.size
     })
     state.visible = false
   } else {
@@ -76,24 +78,26 @@ function cancel() {
   state.visible = false
 }
 
-function loadData(node: Node, resolve: (data: FileTree[]) => void, reject: () => void) {
+function loadData(node: Node, resolve: (data: LazyFileTree[]) => void, reject: () => void) {
   if (node.level == 0) {
     resolve([{
       name: t('component.fileSelector.filesystem'),
       fullPath: "",
-      isEmpty: false
+      size: null,
+      children: new Array<LazyFileTree>()
     }])
   } else {
-    let nodeData = node.data as FileTree
+    let nodeData = node.data as LazyFileTree
     listDir(nodeData.fullPath).then((response: object) => {
       const resp = response as ListDirResp
-      let dataArray = new Array<FileTree>()
+      let dataArray = new Array<LazyFileTree>()
       let dirPath = node.level > 2 ? resp.dirPath + '/' : resp.dirPath
       resp.dirList.forEach((val) => {
         dataArray.push({
           name: val.name,
           fullPath: dirPath + val.name,
-          isEmpty: val.isEmpty
+          size: null,
+          children: val.isEmpty ? null : new Array<LazyFileTree>
         })
       })
       resp.fileList.forEach((val) => {
@@ -101,7 +105,7 @@ function loadData(node: Node, resolve: (data: FileTree[]) => void, reject: () =>
           name: val.name,
           fullPath: dirPath + val.name,
           size: BigInt(val.size),
-          isEmpty: true
+          children: null
         })
       })
       resolve(dataArray)
