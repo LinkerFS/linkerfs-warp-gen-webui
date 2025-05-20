@@ -59,7 +59,7 @@ const dirFilter = (data: LazyFileTree) => {
 const fileNameFilter = (suffixes: Array<string>) => {
     if (suffixes.length > 0)
         return (data: LazyFileTree) => {
-            let result = false;
+            let result = false
             // reserve directory
             if (data.size === null && data.children !== null)
                 return true
@@ -73,6 +73,8 @@ const fileNameFilter = (suffixes: Array<string>) => {
         return noFilter
 }
 
+const isoFilter: (data: LazyFileTree) => boolean = fileNameFilter(["iso"])
+
 export const fileSelectorSymbol: InjectionKey<VueTemplateRef<typeof FileSelector>> = Symbol('fileSelector')
 
-export const FileTreeFilters = {noFilter, dirFilter, fileNameFilter}
+export const FileTreeFilters = {noFilter, dirFilter, isoFilter}
