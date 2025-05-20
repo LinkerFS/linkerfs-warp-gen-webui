@@ -33,10 +33,10 @@ const handleSelect = (_: string, keyPath: string[]) => {
   })
   router.push(route)
 }
-onMounted(() => {
-  getServerFeature().then((response) => {
-    serverFeature.value = response as unknown as number
-  })
+onMounted(async () => {
+  serverFeature.value = await getServerFeature() as unknown as number
+  await router.isReady()
+  activeIndex.value = router.currentRoute.value.path.slice(1)
 })
 </script>
 <template>
