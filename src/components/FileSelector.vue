@@ -21,17 +21,15 @@
 
 <script setup lang="ts">
 import {FileSelectConfig, FileSelectorState, FileTreeFilters, SelectedCallBack} from "@/common/data/fileSelector.ts";
-import {reactive, ref, useTemplateRef, watch} from "vue";
+import {reactive, useTemplateRef, watch} from "vue";
 import {LazyFileTree} from "@/common/data/fileTree.ts";
 import {ElTree} from "element-plus";
 import {listDir, ListDirResp} from "@/common/api/file.ts";
 import type Node from 'element-plus/es/components/tree/src/model/node'
 import {ElMessage} from "element-plus"
-import {useI18n} from 'vue-i18n'
+import {fsTreeDataCache} from "@/common/store/fileTree.ts";
 
-const {t} = useI18n({useScope: 'global'})
 const state = reactive(new FileSelectorState)
-const data = ref<LazyFileTree[]>()
 const treeRef = useTemplateRef('treeRef')
 const treeProps = {
   label: "name",
@@ -79,26 +77,35 @@ function cancel() {
 }
 
 function loadData(node: Node, resolve: (data: LazyFileTree[]) => void, reject: () => void) {
-  if (node.level == 0) {
-    resolve([{
-      name: t('component.fileSelector.filesystem'),
-      fullPath: "",
-      size: null,
-      children: new Array<LazyFileTree>()
-    }])
+  let nodeData = node.data as LazyFileTree
+  let nodeIdx = node.level === 0 ? 0 : (nodeData.idx ?? 0) + 1
+
+  function filterNewData() {
+    if (state.filterFunc != FileTreeFilters.noFilter) {
+      node.childNodes.forEach((val) => {
+        val.visible = treeRef?.value?.store.filterNodeMethod(null, val.data, val) ?? true
+      })
+    }
+  }
+
+  if (!!fsTreeDataCache.data[nodeIdx]) {
+    resolve(fsTreeDataCache.data[nodeIdx])
+    filterNewData()
   } else {
-    let nodeData = node.data as LazyFileTree
     listDir(nodeData.fullPath).then((response: object) => {
       const resp = response as ListDirResp
       let dataArray = new Array<LazyFileTree>()
       let dirPath = node.level > 2 ? resp.dirPath + '/' : resp.dirPath
       resp.dirList.forEach((val) => {
-        dataArray.push({
+        let dir: LazyFileTree = {
           name: val.name,
           fullPath: dirPath + val.name,
           size: null,
-          children: val.isEmpty ? null : new Array<LazyFileTree>
-        })
+          children: val.isEmpty ? null : new Array<LazyFileTree>,
+        }
+        if (dir.children)
+          dir.idx = ++fsTreeDataCache.maxIdx
+        dataArray.push(dir)
       })
       resp.fileList.forEach((val) => {
         dataArray.push({
@@ -108,12 +115,9 @@ function loadData(node: Node, resolve: (data: LazyFileTree[]) => void, reject: (
           children: null
         })
       })
+      fsTreeDataCache.data[nodeIdx] = dataArray
       resolve(dataArray)
-      if (state.filterFunc != FileTreeFilters.noFilter) {
-        node.childNodes.forEach((val) => {
-          val.visible = treeRef!.value!.store.filterNodeMethod(null, val.data, val)
-        })
-      }
+      filterNewData()
     }, () => {
       reject()
     })
@@ -131,7 +135,6 @@ defineExpose({open})
           node-key="fullPath"
           :load="loadData"
           :filter-node-method="state.filter"
-          :data="data"
           :props="treeProps"
           highlight-current
           lazy

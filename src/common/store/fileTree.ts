@@ -19,28 +19,25 @@
  * along with linkerfs-warp-gen-webui. If not, see <https://www.gnu.org/licenses/>.
  */
 
-export interface LazyFileTree {
-    idx?: number
-    name: string
-    fullPath: string
-    children: LazyFileTree[] | null
-    size: bigint | null
+import {LazyFileTree} from "@/common/data/fileTree.ts";
+import {i18n} from "@/common/i18n";
+
+const t = i18n.global.t
+
+type fsTreeDataCacheType = {
+    maxIdx: number,
+    data: LazyFileTree[][]
 }
 
-export interface FileTree {
-    name: string
-    children: FileTree[] | null
-    size: string | null
-}
-
-export class FileInfo {
-    name: string
-    size: bigint | null
-    fullPath: string
-
-    constructor(name: string, fullPath: string, size: bigint | null) {
-        this.name = name;
-        this.fullPath = fullPath
-        this.size = size
-    }
+export const fsTreeDataCache: fsTreeDataCacheType = {
+    maxIdx: 0,
+    data: [[
+        {
+            idx: 0,
+            name: t('component.fileSelector.filesystem'),
+            fullPath: "",
+            size: null,
+            children: new Array<LazyFileTree>()
+        }
+    ]]
 }
