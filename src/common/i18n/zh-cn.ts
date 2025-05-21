@@ -88,6 +88,15 @@ const baseView = {
     atLeastOneTarget: '至少添加一个目标'
 }
 
+const udfView = {
+    udfFilePath: 'UDF文件路径',
+    savePath: '@:view.base.savePath',
+    savePathPH: '@:view.base.savePathPH',
+    udfFilePathPH: '请选择一个UDF文件',
+    objectNotFile: '选择的对象不是一个文件',
+    plzSelectDir: '@:view.base.plzSelectDir'
+}
+
 const menu = {
     base: '基础',
     udfFile: 'UDF文件'
@@ -97,14 +106,20 @@ const fileSelectorComp = {
     filesystem: '文件系统'
 }
 
+const udfContentComp = {
+    noData: '尚未选择UDF文件'
+}
+
 const view = {
     menu: menu,
-    base: baseView
+    base: baseView,
+    udf: udfView
 }
 
 const component = {
     fileSelector: fileSelectorComp,
-    warpTargetCard: warpTargetCardComp
+    warpTargetCard: warpTargetCardComp,
+    udfContent: udfContentComp
 }
 
 const data = {
