@@ -23,23 +23,29 @@
 
 import {ElForm, ElInput, ElMessage} from "element-plus";
 import {ref, useTemplateRef} from "vue";
-import {UdfWarpFileSaveInfo} from "@/common/data/udfWarpFile.ts";
+import {getUdfWarpFileSaveInfoValidator, UdfWarpFileSaveInfo} from "@/common/data/udfWarpFile.ts";
 import UdfContent from "@/components/UdfContent.vue";
-import {FileTree} from "@/common/data/fileTree.ts";
+import {assignFullPath, FileTree} from "@/common/data/fileTree.ts";
 import FileSelector from "@/components/FileSelector.vue";
 import {FileTreeFilters} from "@/common/data/fileSelector.ts";
 import {listUDF, ListUdfResp} from "@/common/api/file.ts";
 import {useI18n} from "vue-i18n";
 import {setInputDisplayTail} from "@/common/utils/dom.ts";
+import CreateWarpResultDialog from "@/components/CreateWarpResultDialog.vue";
+import {createUdfWarp, CreateWarpResponse} from "@/common/api/warp.ts";
 
 const {t} = useI18n({useScope: 'global'})
-const generating = ref<boolean>(false);
+const generating = ref<boolean>(false)
 const udfWarpSaveInfo = ref(new UdfWarpFileSaveInfo)
 const treeData = ref<FileTree[]>([])
 const volumeId = ref("")
 const fileSelectorRef = useTemplateRef('fileSelector')
 const udfFileInputRef = useTemplateRef('udfFileInputRef')
 const savePathInputRef = useTemplateRef('savePathInputRef')
+const udfContentRef = useTemplateRef('udfContentRef')
+const formRef = useTemplateRef('formRef')
+const resultDialogRef = useTemplateRef('resultDialog')
+const validateRule = getUdfWarpFileSaveInfoValidator(udfWarpSaveInfo)
 
 function selectUdfFile() {
   fileSelectorRef.value?.open(
@@ -56,6 +62,8 @@ function selectUdfFile() {
           }
           listUDF(fileInfo.fullPath).then((response) => {
             const data = response as unknown as ListUdfResp
+            data.fileTree.fullPath = data.fileTree.name
+            assignFullPath(data.fileTree)
             treeData.value = [data.fileTree]
             volumeId.value = data.volumeId
             udfWarpSaveInfo.value.udfFilePath = fileInfo.fullPath;
@@ -81,14 +89,32 @@ function selectSavePath() {
 }
 
 function generateWarpFile() {
-
+  let selectedTargets = udfContentRef.value?.getSelectTargets() ?? []
+  if (selectedTargets.length === 0) {
+    ElMessage({
+      message: t('view.udf.atLeastOneTarget'),
+      type: "error"
+    })
+    return
+  }
+  formRef.value!.validate((valid) => {
+    if (valid) {
+      generating.value = true
+      createUdfWarp(udfWarpSaveInfo.value.udfFilePath, udfWarpSaveInfo.value.savePath, selectedTargets).then(data => {
+        generating.value = false
+        resultDialogRef.value?.open(data as unknown as CreateWarpResponse)
+      }, () => {
+        generating.value = false
+      })
+    }
+  })
 }
 </script>
 
 <template>
-  <el-form label-position="right" label-width="auto">
+  <el-form ref='formRef' :model="udfWarpSaveInfo" :rules="validateRule" label-position="right" label-width="auto">
     <el-row align="middle" class="warp-row" justify="start">
-      <el-form-item :label="$t('view.udf.udfFilePath') + ':'" class="warp-form-item" prop="udfFile">
+      <el-form-item :label="$t('view.udf.udfFilePath') + ':'" class="warp-form-item" prop="udfFilePath">
         <el-col :span="12">
           <el-input
               ref="udfFileInputRef"
@@ -127,8 +153,9 @@ function generateWarpFile() {
       </el-form-item>
     </el-row>
   </el-form>
-  <UdfContent :treeData="treeData" :volume-id="volumeId"></UdfContent>
+  <UdfContent ref="udfContentRef" :treeData="treeData" :volume-id="volumeId"></UdfContent>
   <FileSelector ref="fileSelector"></FileSelector>
+  <CreateWarpResultDialog ref="resultDialog"></CreateWarpResultDialog>
 </template>
 
 <style scoped>

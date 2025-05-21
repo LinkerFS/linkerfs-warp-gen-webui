@@ -94,7 +94,11 @@ const udfView = {
     savePathPH: '@:view.base.savePathPH',
     udfFilePathPH: 'Please select a UDF file to open',
     objectNotFile: 'Select object not a file',
-    plzSelectDir: '@:view.base.plzSelectDir'
+    plzSelectDir: '@:view.base.plzSelectDir',
+    requireUdfFilePath: '@:view.udf.udfFilePath required',
+    requireSavePath: '@:view.udf.savePath required',
+    savePathIsDir: '@:view.udf.savePath must be a directory',
+    atLeastOneTarget: 'Select at least one file'
 }
 
 const menu = {

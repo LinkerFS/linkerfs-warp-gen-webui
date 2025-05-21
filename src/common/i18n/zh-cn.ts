@@ -94,7 +94,11 @@ const udfView = {
     savePathPH: '@:view.base.savePathPH',
     udfFilePathPH: '请选择一个UDF文件',
     objectNotFile: '选择的对象不是一个文件',
-    plzSelectDir: '@:view.base.plzSelectDir'
+    plzSelectDir: '@:view.base.plzSelectDir',
+    requireUdfFilePath: '@:view.udf.udfFilePath 为必填项',
+    requireSavePath: '@:view.udf.savePath 为必填项',
+    savePathIsDir: '@:view.udf.savePath 必须是一个目录',
+    atLeastOneTarget: '至少选择一个文件'
 }
 
 const menu = {

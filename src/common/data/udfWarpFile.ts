@@ -19,8 +19,39 @@
  * along with linkerfs-warp-gen-webui. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import {reactive, Ref} from "vue";
+import {FormRules} from "element-plus";
+import {i18n} from "@/common/i18n";
+
+const t = i18n.global.t
+
 export class UdfWarpFileSaveInfo {
     udfFilePath: string = ""
     savePath: string = ""
     savePathIsDir: boolean = false
+}
+
+export function getUdfWarpFileSaveInfoValidator(saveInfo: Ref<UdfWarpFileSaveInfo>) {
+    function validateUdfFilePath(_: any, value: any, callback: any) {
+        if (value === '') {
+            callback(new Error(t('view.udf.requireUdfFilePath')))
+        } else {
+            callback()
+        }
+    }
+
+    function validateSavePath(_: any, value: any, callback: any) {
+        if (value === '') {
+            callback(new Error(t('view.udf.requireSavePath')))
+        } else if (!saveInfo.value.savePathIsDir) {
+            callback(new Error(t('view.udf.savePathIsDir')))
+        } else {
+            callback()
+        }
+    }
+
+    return reactive<FormRules<UdfWarpFileSaveInfo>>({
+        udfFilePath: [{validator: validateUdfFilePath, trigger: "blur"}],
+        savePath: [{validator: validateSavePath, trigger: "blur"}]
+    })
 }
