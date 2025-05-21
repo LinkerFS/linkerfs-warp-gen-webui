@@ -30,6 +30,15 @@ export const createWarp = async (savePath: string, configs: WarpConfig[]) => {
     return Axios.post("/warp/create", data)
 }
 
+export const createUdfWarp = async (udfPath: string, savePath: string, warpTargets: UdfWarpTarget[]) => {
+    let data: CreateUdfWarpReq = {
+        udfPath: udfPath,
+        savePath: savePath,
+        warpTargets: warpTargets
+    }
+    return Axios.post("/warp/udf/create", data)
+}
+
 export interface WarpConfig {
     fileName: string
     warpTargets: WarpTarget[]
@@ -44,4 +53,17 @@ export interface CreateWarpResponse {
     warpFiles: string[]
     hardlinkFiles: string[]
     failedFiles: string[]
+}
+
+export interface UdfWarpTarget {
+    warpFileName: string,
+    filePath: string,
+    dataOffset: string,
+    dataSize: string
+}
+
+export interface CreateUdfWarpReq {
+    udfPath: string
+    savePath: string
+    warpTargets: UdfWarpTarget[]
 }
