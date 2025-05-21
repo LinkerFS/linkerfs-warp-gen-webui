@@ -60,17 +60,16 @@ function openFile() {
   })
 }
 
-function generateWarpFile(form: FormInstance | undefined) {
-  if (!form) return
-  form.validate((valid) => {
+function generateWarpFile() {
+  if (cardsData.length === 0) {
+    ElMessage({
+      message: t('view.base.atLeastOneTarget'),
+      type: "error"
+    })
+    return
+  }
+  formRef.value!.validate((valid) => {
     if (valid) {
-      if (cardsData.length === 0) {
-        ElMessage({
-          message: t('view.base.atLeastOneTarget'),
-          type: "error"
-        })
-        return
-      }
       let config: WarpConfig = {
         fileName: saveInfo.value.warpFileName,
         warpTargets: cardsData.map(val => val.warpTarget)
@@ -132,7 +131,7 @@ function remove(seq: number) {
           </el-input>
         </el-col>
         <el-col :span="4">
-          <el-button @click="generateWarpFile(formRef)" type="success" class="warp-button" :loading="generating">{{
+          <el-button :loading="generating" class="warp-button" type="success" @click="generateWarpFile">{{
               $t('action.generate')
             }}
           </el-button>
