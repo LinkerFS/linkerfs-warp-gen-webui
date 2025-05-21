@@ -24,6 +24,7 @@
 import {ElTree} from "element-plus";
 import {FileTree} from "@/common/data/fileTree.ts";
 import {useTemplateRef} from "vue";
+import {UdfWarpTarget} from "@/common/api/warp.ts";
 
 const prop = defineProps<{ treeData: FileTree[], volumeId: string }>()
 const treeProps = {
@@ -35,11 +36,19 @@ const treeProps = {
 }
 const treeRef = useTemplateRef('treeRef')
 
-function getSelectNode() {
-  return treeRef.value!.getCheckedNodes(false, false)
+function getSelectTargets(): UdfWarpTarget[] {
+  let selectedNodes = treeRef.value!.getCheckedNodes(true, false)
+  return selectedNodes.map((val) => {
+    return {
+      warpFileName: val.name,
+      filePath: val.fullPath,
+      dataOffset: "0",
+      dataSize: val.size
+    }
+  })
 }
 
-defineExpose({getSelectNode})
+defineExpose({getSelectTargets})
 </script>
 <template>
   <el-card class="warp-form-item">
@@ -51,9 +60,9 @@ defineExpose({getSelectNode})
         :data="prop.treeData"
         :empty-text="$t('component.udfContent.noData')"
         :props="treeProps"
+        node-key="fullPath"
         class="warp-form-item"
         highlight-current
-        node-key="fullPath"
         show-checkbox
     />
   </el-card>
