@@ -19,35 +19,8 @@
  * along with linkerfs-warp-gen-webui. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import Axios from "@/common/utils/axios.ts";
-import {FileTree} from "@/common/data/fileTree.ts";
-
-export const listDir = async (path: string) => {
-    return Axios.post("/file/listDir", {
-        dirPath: path
-    })
-}
-
-export interface ListDirResp {
-    dirPath: string
-    fileList: {
-        name: string
-        size: string
-    }[]
-    dirList: {
-        name: string
-        isEmpty: boolean
-    }[]
-}
-
-export const listUDF = async (udfPath: string) => {
-    return Axios.post("/file/listUDF", {
-        udfPath: udfPath
-    })
-}
-
-export interface ListUdfResp {
-    udfPath: string
-    volumeId: string
-    fileTree: FileTree
+export class UdfWarpFileSaveInfo {
+    udfFilePath: string = ""
+    savePath: string = ""
+    savePathIsDir: boolean = false
 }

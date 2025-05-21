@@ -88,6 +88,15 @@ const baseView = {
     atLeastOneTarget: 'Add at least one target'
 }
 
+const udfView = {
+    udfFilePath: '@:view.menu.udfFile path',
+    savePath: '@:view.base.savePath',
+    savePathPH: '@:view.base.savePathPH',
+    udfFilePathPH: 'Please select a UDF file to open',
+    objectNotFile: 'Select object not a file',
+    plzSelectDir: '@:view.base.plzSelectDir'
+}
+
 const menu = {
     base: 'Base',
     udfFile: 'UDF File'
@@ -97,14 +106,20 @@ const fileSelectorComp = {
     filesystem: 'File System'
 }
 
+const udfContentComp = {
+    noData: 'No UDF file selected'
+}
+
 const view = {
     menu: menu,
-    base: baseView
+    base: baseView,
+    udf: udfView
 }
 
 const component = {
     fileSelector: fileSelectorComp,
-    warpTargetCard: warpTargetCardComp
+    warpTargetCard: warpTargetCardComp,
+    udfContent: udfContentComp
 }
 
 const data = {
