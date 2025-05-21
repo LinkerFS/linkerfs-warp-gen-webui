@@ -29,6 +29,7 @@ export interface LazyFileTree {
 
 export interface FileTree {
     name: string
+    fullPath?: string
     children: FileTree[] | null
     size: string | null
 }
@@ -43,4 +44,15 @@ export class FileInfo {
         this.fullPath = fullPath
         this.size = size
     }
+}
+
+export function assignFullPath(fileTree: FileTree) {
+    fileTree.children?.forEach((val) => {
+        let fullPath = fileTree!.fullPath
+        if (!fullPath!.endsWith('/'))
+            fullPath += '/'
+        fullPath += val.name
+        val.fullPath = fullPath
+        assignFullPath(val)
+    })
 }
