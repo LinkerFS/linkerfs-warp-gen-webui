@@ -75,13 +75,13 @@ const warpTargetCardComp = {
 }
 
 const baseView = {
-    savePath: '文件路径',
+    savePath: '保存路径',
     fileName: '文件名',
     addTarget: '添加目标',
     savePathPH: '请选择一个路径来保存变形文件',
     fileNamePH: '请输入文件名',
     requireSavePath: '@:view.base.savePath 为必填项',
-    requireFileName: '@:view.fileName 为必填项',
+    requireFileName: '@:view.base.fileName 为必填项',
     savePathIsDir: '@:view.base.savePath 必须是一个目录',
     invalidFileName: '文件名非法',
     plzSelectDir: '请选择一个目录',

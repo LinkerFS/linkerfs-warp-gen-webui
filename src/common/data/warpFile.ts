@@ -46,7 +46,7 @@ export function getWarpFileSaveInfoValidator(saveInfo: Ref<WarpFileSaveInfo>) {
 
     function validateFileName(_: any, value: any, callback: any) {
         if (value === '') {
-            callback(new Error(t('view.base.fileName')))
+            callback(new Error(t('view.base.requireFileName')))
         } else if (!value.match(fileNameRegex)) {
             callback(new Error(t('view.base.invalidFileName')))
         } else {

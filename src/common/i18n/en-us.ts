@@ -81,7 +81,7 @@ const baseView = {
     savePathPH: 'Please select the path to save warp file',
     fileNamePH: 'Please input the file name',
     requireSavePath: '@:view.base.savePath required',
-    requireFileName: '@:view.fileName required',
+    requireFileName: '@:view.base.fileName required',
     savePathIsDir: '@:view.base.savePath must be a directory',
     invalidFileName: 'File name is invalid',
     plzSelectDir: 'Please select a directory',
